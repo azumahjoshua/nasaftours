@@ -1,0 +1,17 @@
+Dear {{ booking.full_name }},
+
+Thank you for booking a tour with Nasaf Tour Ghana!
+
+Tour Details:
+- Date: {{ booking.tour_date }}
+- Time: {{ booking.start_time }}
+- Duration: {{ booking.duration_hours }} hours
+- Travelers: {{ booking.number_of_travelers }}
+
+You can view your booking details here:
+{{ confirmation_url }}
+
+We're excited to show you the beauty of Ghana!
+
+Best regards,
+The Nasaf Tour Ghana Team

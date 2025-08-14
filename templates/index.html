@@ -1,0 +1,157 @@
+{% extends "base.html" %}
+{% block title %}Home - Explore Ghana{% endblock %}
+{% load static %}
+
+{% block content %}
+
+<!-- Hero Carousel Section -->
+ <section class="w-full bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
+  <div id="custom-carousel" class="relative w-full overflow-hidden" data-carousel="static">
+    <div class="relative min-h-[400px] md:h-96 overflow-hidden rounded-xl">
+      {% for slide in slides %}
+      <div class="absolute inset-0 transition-opacity duration-1000 ease-in-out slide-item 
+                  {% if forloop.first %}opacity-100 z-10{% else %}opacity-0 z-0{% endif %}">
+        <div class="grid grid-cols-1 md:grid-cols-2 items-center gap-8 h-full p-4 md:p-8">
+          <div class="space-y-6 text-center md:text-left">
+            <h2 class="text-2xl md:text-4xl font-extrabold text-gray-900 leading-snug">
+              {{ slide.title }}
+              {% if slide.highlight %}
+              <span class="text-brand">{{ slide.highlight }}</span>
+              {% endif %}
+            </h2>
+            <p class="text-base md:text-lg text-gray-700">
+              {{ slide.description }}
+            </p>
+            <a href="{{ slide.cta_link }}"
+              class="inline-block bg-brand text-white px-6 py-3 rounded-md text-sm font-medium shadow hover:bg-blue-700 transition duration-300">
+              {{ slide.cta_text }}
+            </a>
+          </div>
+          <div class="mt-6 md:mt-0">
+            <img src="{{ slide.image.url }}" alt="{{ slide.alt }}"
+              class="w-full h-60 md:h-80 object-contain mx-auto" loading="lazy" />
+          </div>
+        </div>
+      </div>
+      {% empty %}
+      <div class="w-full h-full flex items-center justify-center bg-gray-100 rounded-xl">
+        <p class="text-gray-500">No slides available</p>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+
+
+<!-- Popular Destinations in Ghana -->
+<!-- <section class="py-12 px-4 sm:px-6 lg:px-8" aria-label="Popular Destinations in Ghana">
+  <div class="max-w-7xl mx-auto">
+    <h2 class="text-3xl md:text-4xl text-center font-bold text-gray-900 mb-10">
+      Popular Destinations in Ghana
+    </h2>
+
+    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
+      {% for destination in destinations %}
+      <div class="bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300 p-4 flex flex-col">
+        <img src="{% static destination.image %}" alt="{{ destination.name }} - Ghana Travel Destination"
+          class="w-full h-48 object-cover rounded-md mb-4" loading="lazy" />
+        <h3 class="text-xl font-semibold text-gray-900">{{ destination.name }}</h3>
+        <p class="text-gray-700 mt-2 text-sm flex-grow">
+          {{ destination.description|truncatechars:120 }}
+        </p>
+        <a href="{{ destination.url }}"
+          class="mt-4 inline-block bg-brand text-white px-5 py-2 rounded-md text-sm font-medium shadow hover:bg-blue-700 transition duration-300">
+          Read More
+        </a>
+      </div>
+      {% endfor %}
+    </div>
+
+    <div class="mt-12 text-center">
+      <a href="#"
+        class="inline-block bg-brand text-white px-6 py-3 rounded-md text-base font-semibold shadow hover:bg-blue-700 transition duration-300">
+        See More →
+      </a>
+    </div>
+  </div>
+</section> -->
+
+<!-- Gallery -->
+<!-- <section class="py-12 px-4 sm:px-6 lg:px-8 bg-gray-50" aria-label="Gallery Explore Ghana Images">
+  <div class="max-w-7xl mx-auto">
+    <h2 class="text-3xl md:text-4xl text-center font-bold text-gray-900 mb-10">
+      Explore Our Gallery – Discover Ghana
+    </h2>
+
+    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
+      {% for gallery_image in gallery_images %}
+      <div class="group overflow-hidden rounded-lg shadow-md hover:shadow-xl transition-shadow duration-300">
+        <img src="{% static gallery_image.url %}" alt="{{ gallery_image.alt }} - Ghana Destination"
+          class="w-full h-60 object-cover aspect-square transform group-hover:scale-105 transition-transform duration-300"
+          loading="lazy" />
+      </div>
+      {% endfor %}
+    </div>
+
+    <div class="mt-12 text-center">
+      <a href="https://www.instagram.com/_tourghana/" target="_blank"
+        class="inline-block bg-brand text-white px-6 py-3 rounded-md text-base font-semibold shadow hover:bg-blue-700 transition duration-300">
+        See More →
+      </a>
+    </div>
+  </div>
+</section> -->
+
+<!-- Testimonial -->
+
+
+<!-- Meet our Expers -->
+<!-- <section class="py-12 px-4 sm:px-6 lg:px-8 bg-gray-50" aria-label="Meet Our Local Tour Experts in Ghana">
+  <div class="max-w-7xl mx-auto text-center">
+    <h2 class="text-3xl md:text-4xl font-bold text-gray-900 mb-6">
+      Meet Our Local Tour Experts in Ghana
+    </h2>
+    <p class="text-gray-600 max-w-2xl mx-auto mb-10">
+      Discover Ghana with confidence. Our experienced local travel guides are here to help you explore top tourist attractions, hidden gems, and authentic cultural experiences across the country.
+    </p>
+    <div class="flex flex-wrap justify-center gap-8">
+  {% for expert in experts %}
+  <div class="p-6 hover:shadow-lg transition-shadow duration-300 w-full sm:w-80">
+    <img src="{% static expert.image %}" alt="{{ expert.name }} - Ghana Travel Guide"
+      class="w-32 h-32 object-cover rounded-full mx-auto mb-4"  loading="lazy"/>
+    <h3 class="text-xl font-semibold text-gray-900 text-center">{{ expert.name }}</h3>
+    <p class="text-gray-700 mt-2 text-sm text-center">
+      {{ expert.description }}
+    </p>
+    <div class="text-center">
+      <a href="{{ expert.profile_url }}"
+        class="mt-4 inline-block bg-brand text-white px-5 py-2 rounded-md text-sm font-medium shadow hover:bg-blue-700 transition duration-300">
+        View Profile
+      </a>
+    </div>
+  </div>
+  {% endfor %}
+</div> -->
+
+<!-- <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8 justify-center">
+      {% for expert in experts %}
+      <div class="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow duration-300">
+        <img src="{% static expert.image %}" alt="{{ expert.name }} - Ghana Travel Guide"
+          class="w-32 h-32 object-cover rounded-full mx-auto mb-4" />
+        <h3 class="text-xl font-semibold text-gray-900">{{ expert.name }}</h3>
+        <p class="text-gray-700 mt-2 text-sm">
+          {{ expert.description }}
+        </p>
+        <a href="{{ expert.profile_url }}"
+          class="mt-4 inline-block bg-brand text-white px-5 py-2 rounded-md text-sm font-medium shadow hover:bg-blue-700 transition duration-300">
+          View Profile
+        </a>
+      </div>
+      {% endfor %}
+    </div> -->
+</div>
+</section>
+
+
+{% endblock %}

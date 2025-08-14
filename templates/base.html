@@ -1,0 +1,181 @@
+{% load static %}
+{% load compress %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Nasaf Tours Ghana | {% block title %}{% endblock %}</title>
+
+  <link rel="icon" href="{% static 'images/favicon.ico' %}" type="image/x-icon">
+  {% compress css %}
+  <link rel="stylesheet" href="{% static 'css/output.css' %}">
+  {% endcompress %}
+</head>
+
+<body class="bg-gray-50">
+  <nav class="bg-white border-b border-gray-200 shadow-sm">
+  <div class="max-w-screen-xl flex flex-wrap items-center justify-between mx-auto p-4">
+    <a href="{% url 'home' %}" class="flex items-center space-x-3 rtl:space-x-reverse">
+      <img src="{% static 'images/NASAF_TOUR_LOGO.png' %}" class="h-8" alt="NASAF TOUR LOGO" />
+      <span class="self-center text-2xl font-semibold text-black">Nasaf Tour</span>
+    </a>
+
+    <!-- Mobile menu toggle -->
+    <button data-collapse-toggle="navbar-dropdown" type="button"
+      class="inline-flex items-center p-2 w-10 h-10 justify-center text-sm text-gray-700 rounded-lg md:hidden hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-brand"
+      aria-controls="navbar-dropdown" aria-expanded="false">
+      <span class="sr-only">Open main menu</span>
+      <svg class="w-5 h-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 17 14"
+        aria-hidden="true">
+        <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+          d="M1 1h15M1 7h15M1 13h15" />
+      </svg>
+    </button>
+
+    <!-- Menu items -->
+    <div class="hidden w-full md:block md:w-auto" id="navbar-dropdown">
+      <ul
+        class="flex flex-col font-medium p-4 md:p-0 mt-4 border border-gray-100 rounded-lg bg-gray-50 md:space-x-8 md:flex-row md:mt-0 md:border-0 md:bg-white">
+
+        <!-- Home -->
+        <li>
+          <a href="{% url 'home' %}"
+            class="block py-2 px-3 rounded-sm md:p-0 {% if request.path == '/' %}bg-brand text-white md:bg-transparent md:text-brand{% else %}text-gray-900 hover:text-brand{% endif %}"
+            {% if request.path == '/' %}aria-current="page"{% endif %}>
+            Home
+          </a>
+        </li>
+
+        <!-- About -->
+        <li>
+          <a href="{% url 'about' %}"
+            class="block py-2 px-3 rounded-sm md:p-0 {% if request.path == '/about/' %}bg-brand text-white md:bg-transparent md:text-brand{% else %}text-gray-900 hover:text-brand{% endif %}"
+            {% if request.path == '/about/' %}aria-current="page"{% endif %}>
+            About
+          </a>
+        </li>
+
+        <!-- Booking -->
+        <li>
+          <a href="{% url 'booking' %}"
+            class="block py-2 px-3 rounded-sm md:p-0 {% if request.path == '/booking/' %}bg-brand text-white md:bg-transparent md:text-brand{% else %}text-gray-900 hover:text-brand{% endif %}"
+            {% if request.path == '/booking/' %}aria-current="page"{% endif %}>
+            Booking
+          </a>
+        </li>
+
+        <!-- Rentals Dropdown (No active path logic here unless you want it) -->
+        <li class="relative">
+          <button id="rentalsDropdown" data-dropdown-toggle="dropdownRentals"
+            class="flex items-center justify-between w-full py-2 px-3 text-gray-900 rounded-sm hover:bg-gray-100 md:hover:bg-transparent md:border-0 md:hover:text-brand md:p-0 md:w-auto">
+            Rentals
+            <svg class="w-2.5 h-2.5 ms-2.5" xmlns="http://www.w3.org/2000/svg" fill="none"
+              viewBox="0 0 10 6">
+              <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="m1 1 4 4 4-4" />
+            </svg>
+          </button>
+          <div id="dropdownRentals"
+            class="z-10 hidden font-normal bg-white divide-y divide-gray-100 rounded-lg shadow-sm w-44">
+            <ul class="py-2 text-sm text-gray-700" aria-labelledby="rentalsDropdown">
+              <li><a href="#" class="block px-4 py-2 hover:bg-gray-100">Rent a Room</a></li>
+              <li><a href="#" class="block px-4 py-2 hover:bg-gray-100">Rent a Car</a></li>
+            </ul>
+          </div>
+        </li>
+
+        <!-- Explore Dropdown -->
+        <li class="relative">
+          <button id="exploreDropdown" data-dropdown-toggle="dropdownExplore"
+            class="flex items-center justify-between w-full py-2 px-3 text-gray-900 rounded-sm hover:bg-gray-100 md:hover:bg-transparent md:border-0 md:hover:text-brand md:p-0 md:w-auto">
+            Explore
+            <svg class="w-2.5 h-2.5 ms-2.5" xmlns="http://www.w3.org/2000/svg" fill="none"
+              viewBox="0 0 10 6">
+              <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="m1 1 4 4 4-4" />
+            </svg>
+          </button>
+          <div id="dropdownExplore"
+            class="z-10 hidden font-normal bg-white divide-y divide-gray-100 rounded-lg shadow-sm w-44">
+            <ul class="py-2 text-sm text-gray-700" aria-labelledby="exploreDropdown">
+              <li><a href="{% url 'tour_gallery' %}" class="block px-4 py-2 hover:bg-gray-100">Gallery</a></li>
+              <li><a href="{% url 'destination-list' %}" class="block px-4 py-2 hover:bg-gray-100">Destinations</a></li>
+              <li><a href="#" class="block px-4 py-2 hover:bg-gray-100">Experiences</a></li>
+            </ul>
+          </div>
+        </li>
+
+        <!-- Blog -->
+        <li>
+          <a href="{% url 'blog_list' %}"
+             class="block py-2 px-3 rounded-sm md:p-0 {% if request.path == '/blog/' %}bg-brand text-white md:bg-transparent md:text-brand{% else %}text-gray-900 hover:text-brand{% endif %}"
+            {% if request.path == '/blog/' %}aria-current="page"{% endif %}>
+            Blog
+          </a>
+        </li>
+
+        <!-- Contact -->
+        <li>
+          <a href="{% url 'contact' %}"
+             class="block py-2 px-3 rounded-sm md:p-0 {% if request.path == '/contact/' %}bg-brand text-white md:bg-transparent md:text-brand{% else %}text-gray-900 hover:text-brand{% endif %}"
+            {% if request.path == '/contact/' %}aria-current="page"{% endif %}>
+            Contact
+          </a>
+        </li>
+
+      </ul>
+    </div>
+  </div>
+</nav>
+
+
+  <div class="container mx-auto mt-8">
+    {% block content %}
+    {% endblock content %}
+  </div>
+   <script src="https://cdn.jsdelivr.net/npm/flowbite@3.1.2/dist/flowbite.min.js"></script>
+
+<script>
+  // Autoplay logic for Flowbite carousel
+  document.addEventListener("DOMContentLoaded", () => {
+    const slides = document.querySelectorAll("#custom-carousel .slide-item");
+    let current = 0;
+    const total = slides.length;
+
+    setInterval(() => {
+      slides[current].classList.remove("opacity-100", "z-10");
+      slides[current].classList.add("opacity-0", "z-0");
+
+      current = (current + 1) % total;
+
+      slides[current].classList.remove("opacity-0", "z-0");
+      slides[current].classList.add("opacity-100", "z-10");
+    }, 5000);
+  });
+
+  // document.addEventListener('DOMContentLoaded', function () {
+  //   const carousel = document.getElementById('testimonial-carousel');
+
+  //   if (carousel) {
+  //     const instance = Flowbite.Carousel.getInstance(carousel);
+
+  //     if (!instance) {
+  //       new Flowbite.Carousel(carousel, {
+  //         interval: 5000,
+  //         ride: 'carousel'
+  //       });
+  //     }
+  //   }
+  // });
+</script>
+
+
+</body>
+
+</html>
+
+
+

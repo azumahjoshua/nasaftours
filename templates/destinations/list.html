@@ -1,0 +1,91 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<section class="container mx-auto py-16 px-4">
+  <!-- Page heading -->
+  <div class="text-center mb-12">
+    <h1 class="text-4xl font-extrabold tracking-tight text-gray-900">
+      Explore Ghana's Top Destinations
+    </h1>
+    <p class="mt-4 text-lg text-gray-600 max-w-2xl mx-auto">
+      Discover breathtaking locations, rich culture, and unforgettable experiences.
+    </p>
+  </div>
+
+  <!-- Destination cards -->
+  <div class="grid gap-10 sm:grid-cols-2 lg:grid-cols-3">
+    {% for destination in destinations %}
+    <article class="bg-white rounded-xl shadow-lg hover:shadow-2xl transition-shadow duration-300 overflow-hidden flex flex-col">
+      <!-- Image -->
+      <a href="{% url 'destination-detail' slug=destination.slug %}">
+        <img 
+          src="{{ destination.image.url }}" 
+          alt="{{ destination.name }}" 
+          class="w-full h-56 object-cover hover:scale-105 transform transition duration-300"
+        >
+      </a>
+
+      <!-- Card content -->
+      <div class="flex flex-col flex-1 p-6">
+        <h2 class="text-2xl font-semibold text-gray-800 mb-1">
+          <a href="{% url 'destination-detail' slug=destination.slug %}" class="hover:text-brand transition-colors">
+            {{ destination.name }}
+          </a>
+        </h2>
+        
+        {% if destination.location %}
+        <p class="text-sm text-gray-500 mb-3">
+            {{ destination.location }}
+        </p>
+        {% endif %}
+        
+        <div class="text-gray-600 flex-1">
+          {{ destination.description|truncatewords_html:25|safe }}
+        </div>
+        
+        <!-- Read more button -->
+        <a href="{% url 'destination-detail' slug=destination.slug %}" 
+           class="mt-6 inline-block bg-brand text-white px-5 py-2 rounded-lg text-sm font-medium shadow hover:bg-blue-700 transition duration-300 text-center">
+          Read more →
+        </a>
+      </div>
+    </article>
+    {% empty %}
+    <p class="col-span-full text-center text-gray-500">No destinations found yet. Check back soon!</p>
+    {% endfor %}
+  </div>
+</section>
+{% endblock %}
+
+<!-- {% extends 'base.html' %}
+
+{% block content %}
+<section class="container mx-auto py-12 px-4">
+  <h1 class="text-3xl font-bold mb-8">Explore Ghana's Destinations</h1>
+  
+  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+    {% for destination in destinations %}
+    <div class="bg-white rounded-lg shadow-md overflow-hidden">
+      <img src="{{ destination.image.url }}" alt="{{ destination.name }}" class="w-full h-48 object-cover">
+      <div class="p-6">
+        <h2 class="text-xl font-bold mb-2">
+          <a href="{% url 'destination-detail' slug=destination.slug %}" class="hover:text-brand">
+            {{ destination.name }}
+          </a>
+        </h2>
+        {% if destination.location %}
+        <p class="text-gray-600 mb-3">{{ destination.location }}</p>
+        {% endif %}
+        <div class="prose max-w-none">
+          {{ destination.description|truncatewords_html:30|safe }}
+        </div>
+        <a href="{% url 'destination-detail' slug=destination.slug %}" 
+           class="inline-block bg-brand text-white px-6 py-3 rounded-md text-base font-semibold shadow hover:bg-blue-700 transition duration-300 mt-4">
+          Read more →
+        </a>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+</section>
+{% endblock %} -->

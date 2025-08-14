@@ -1,0 +1,500 @@
+{% extends "base.html" %}
+{% block title %}Book A Tour Guide - Nasaf Tour Ghana{% endblock %}
+{% load static %}
+
+{% block content %}
+
+<!-- Intro Section -->
+<section class="py-12 px-4 sm:px-6 lg:px-8" aria-label="Tour Booking Introduction">
+  <div class="max-w-7xl mx-auto text-center">
+    <h2 class="text-3xl md:text-4xl font-bold text-gray-900 mb-6">
+      Book A Tour – Your Gateway to Ghana
+    </h2>
+    <p class="text-base md:text-lg text-gray-700 mb-10">
+      Nasafo is your trusted partner for exploring the rich culture, stunning landscapes, and vibrant cities of Ghana.
+      From the bustling markets of Accra to the serene beaches of Cape Coast, we offer personalized travel experiences.
+    </p>
+  </div>
+</section>
+
+<!-- Booking Form Section -->
+<section class="bg-gray-50 py-10 px-4 sm:px-6 lg:px-8" aria-label="Tour Booking Form">
+  <div class="max-w-5xl mx-auto space-y-12">
+    <div class="bg-white p-6 sm:p-8 rounded-lg shadow-md">
+      <h3 class="text-2xl font-semibold text-gray-800 mb-6 text-center">Basic Information</h3>
+      <form method="POST" action="#">
+        {% csrf_token %}
+
+        <!-- Personal Info -->
+        <div class="mb-4">
+          <label for="full_name" class="block text-sm font-medium text-gray-700">Full Name *</label>
+          <input type="text" id="full_name" name="full_name" required
+            class="mt-1 block w-full py-2 px-4 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+            placeholder="Your name">
+        </div>
+
+        <!-- Contact Info -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+          <div>
+            <label for="email" class="block text-sm font-medium text-gray-700">Email *</label>
+            <input type="email" id="email" name="email" required
+              class="mt-1 block w-full py-2 px-4 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+              placeholder="you@example.com">
+          </div>
+          <div>
+            <label for="phone" class="block text-sm font-medium text-gray-700">Phone Number</label>
+            <input type="tel" id="phone" name="phone"
+              class="mt-1 block w-full py-2 px-4 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+              placeholder="+233 123 456 789">
+          </div>
+        </div>
+
+        <!-- Tour Details -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+          <div>
+            <label for="date" class="block text-sm font-medium text-gray-700">Tour Date *</label>
+            <input type="date" id="date" name="date" required
+              class="mt-1 block w-full py-2 px-4 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
+          </div>
+          <div>
+            <label for="time" class="block text-sm font-medium text-gray-700">Start Time *</label>
+            <input type="time" id="time" name="time" required
+              class="mt-1 block w-full py-2 px-4 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
+          </div>
+        </div>
+
+        <!-- Group Details -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+          <div>
+            <label for="travelers" class="block text-sm font-medium text-gray-700">Number of Travelers *</label>
+            <input type="number" id="travelers" name="travelers" min="1" max="50" required
+              class="mt-1 block w-full py-2 px-4 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
+          </div>
+          <div>
+            <label for="duration" class="block text-sm font-medium text-gray-700">Duration (hours) *</label>
+            <input type="number" id="duration" name="duration" min="1" max="12" required
+              class="mt-1 block w-full py-2 px-4 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
+          </div>
+        </div>
+
+        <!-- Interests Section -->
+        <div class="mb-8">
+          <h2 id="interests-heading" class="text-2xl md:text-3xl font-bold text-gray-900 text-center mb-8">
+            Your Interests
+          </h2>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+
+            <!-- Leisure -->
+            <fieldset class="space-y-3" aria-labelledby="leisure-legend">
+              <legend id="leisure-legend" class="text-xl font-semibold text-gray-800 mb-3">Leisure</legend>
+              <div class="space-y-3">
+                <label class="flex items-start  gap-3">
+                  <input type="checkbox" name="interests" value="Rest & Relaxation"
+                    class="mt-1 h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500">
+                  <span class="" >Rest & Relaxation</span>
+                </label>
+                <label class="flex items-start gap-3">
+                  <input type="checkbox" name="interests" value="Party Nights"
+                    class="mt-1 h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500">
+                  <span>Party Nights</span>
+                </label>
+                <label class="flex items-start gap-3">
+                  <input type="checkbox" name="interests" value="People watching"
+                    class="mt-1 h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500">
+                  <span>People Watching</span>
+                </label>
+                <label class="flex items-start gap-3">
+                  <input type="checkbox" name="interests" value="Privacy & Seclusion"
+                    class="mt-1 h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500">
+                  <span>Privacy & Seclusion</span>
+                </label>
+              </div>
+            </fieldset>
+
+            <!-- Scenery -->
+            <fieldset class="space-y-3" aria-labelledby="scenery-legend">
+              <legend id="scenery-legend" class="text-xl font-semibold text-gray-800 mb-3">Scenery</legend>
+              <div class="space-y-3">
+                <label class="flex items-start gap-3">
+                  <input type="checkbox" name="interests" value="Beaches"
+                    class="mt-1 h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500">
+                  <span>Beaches</span>
+                </label>
+                <label class="flex items-start gap-3">
+                  <input type="checkbox" name="interests" value="Lakes & Rivers"
+                    class="mt-1 h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500">
+                  <span>Lakes & Rivers</span>
+                </label>
+                <label class="flex items-start gap-3">
+                  <input type="checkbox" name="interests" value="Rain Forest"
+                    class="mt-1 h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500">
+                  <span>Rain Forest</span>
+                </label>
+                <label class="flex items-start gap-3">
+                  <input type="checkbox" name="interests" value="Waterfalls"
+                    class="mt-1 h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500">
+                  <span>Waterfalls</span>
+                </label>
+                <label class="flex items-start gap-3">
+                  <input type="checkbox" name="interests" value="Highlands/Mountains"
+                    class="mt-1 h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500">
+                  <span>Highlands/Mountains</span>
+                </label>
+                <label class="flex items-start gap-3">
+                  <input type="checkbox" name="interests" value="Savanna"
+                    class="mt-1 h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500">
+                  <span>Savanna</span>
+                </label>
+                <label class="flex items-start gap-3">
+                  <input type="checkbox" name="interests" value="Traditional Architecture"
+                    class="mt-1 h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500">
+                  <span>Traditional Architecture</span>
+                </label>
+                <label class="flex items-start gap-3">
+                  <input type="checkbox" name="interests" value="Colonial Architecture"
+                    class="mt-1 h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500">
+                  <span>Colonial Architecture</span>
+                </label>
+              </div>
+            </fieldset>
+
+            <!-- Culture -->
+            <fieldset class="space-y-3" aria-labelledby="culture-legend">
+              <legend id="culture-legend" class="text-xl font-semibold text-gray-800 mb-3">Culture</legend>
+              <div class="space-y-3">
+                <label class="flex items-start gap-3">
+                  <input type="checkbox" name="interests" value="Museums"
+                    class="mt-1 h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500">
+                  <span>Museums</span>
+                </label>
+                <label class="flex items-start gap-3">
+                  <input type="checkbox" name="interests" value="Monuments/Shrines"
+                    class="mt-1 h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500">
+                  <span>Monuments/Shrines</span>
+                </label>
+                <label class="flex items-start gap-3">
+                  <input type="checkbox" name="interests" value="Home visit"
+                    class="mt-1 h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500">
+                  <span>Home Visit</span>
+                </label>
+                <label class="flex items-start gap-3">
+                  <input type="checkbox" name="interests" value="Ceremonies"
+                    class="mt-1 h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500">
+                  <span>Ceremonies</span>
+                </label>
+                <label class="flex items-start gap-3">
+                  <input type="checkbox" name="interests" value="Dancing"
+                    class="mt-1 h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500">
+                  <span>Dancing</span>
+                </label>
+                <label class="flex items-start gap-3">
+                  <input type="checkbox" name="interests" value="Drumming"
+                    class="mt-1 h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500">
+                  <span>Drumming</span>
+                </label>
+                <label class="flex items-start gap-3">
+                  <input type="checkbox" name="interests" value="Music"
+                    class="mt-1 h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500">
+                  <span>Music</span>
+                </label>
+                <label class="flex items-start gap-3">
+                  <input type="checkbox" name="interests" value="Food & Drink"
+                    class="mt-1 h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500">
+                  <span>Food & Drink</span>
+                </label>
+                <label class="flex items-start gap-3">
+                  <input type="checkbox" name="interests" value="Crafts/Weaving"
+                    class="mt-1 h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500">
+                  <span>Crafts/Weaving</span>
+                </label>
+                <label class="flex items-start gap-3">
+                  <input type="checkbox" name="interests" value="Language"
+                    class="mt-1 h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500">
+                  <span>Language</span>
+                </label>
+                <label class="flex items-start gap-3">
+                  <input type="checkbox" name="interests" value="Spirituality"
+                    class="mt-1 h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500">
+                  <span>Spirituality</span>
+                </label>
+              </div>
+            </fieldset>
+
+            <!-- Shopping -->
+            <fieldset class="space-y-3" aria-labelledby="shopping-legend">
+              <legend id="shopping-legend" class="text-xl font-semibold text-gray-800 mb-3">Shopping</legend>
+              <div class="space-y-3">
+                <label class="flex items-start gap-3">
+                  <input type="checkbox" name="interests" value="Crafts"
+                    class="mt-1 h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500">
+                  <span>Crafts</span>
+                </label>
+                <label class="flex items-start gap-3">
+                  <input type="checkbox" name="interests" value="Beads/Jewelry"
+                    class="mt-1 h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500">
+                  <span>Beads/Jewelry</span>
+                </label>
+                <label class="flex items-start gap-3">
+                  <input type="checkbox" name="interests" value="Clothing"
+                    class="mt-1 h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500">
+                  <span>Clothing</span>
+                </label>
+                <label class="flex items-start gap-3">
+                  <input type="checkbox" name="interests" value="Kente/Adinkra cloth"
+                    class="mt-1 h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500">
+                  <span>Kente/Adinkra Cloth</span>
+                </label>
+                <label class="flex items-start gap-3">
+                  <input type="checkbox" name="interests" value="Contemporary art"
+                    class="mt-1 h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500">
+                  <span>Contemporary Art</span>
+                </label>
+                <label class="flex items-start gap-3">
+                  <input type="checkbox" name="interests" value="Music"
+                    class="mt-1 h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500">
+                  <span>Music</span>
+                </label>
+                <label class="flex items-start gap-3">
+                  <input type="checkbox" name="interests" value="Gold"
+                    class="mt-1 h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500">
+                  <span>Gold</span>
+                </label>
+                <label class="flex items-start gap-3">
+                  <input type="checkbox" name="interests" value="Cocoa/Chocolate"
+                    class="mt-1 h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500">
+                  <span>Cocoa/Chocolate</span>
+                </label>
+              </div>
+            </fieldset>
+
+            <!-- Wildlife -->
+            <fieldset class="space-y-3" aria-labelledby="wildlife-legend">
+              <legend id="wildlife-legend" class="text-xl font-semibold text-gray-800 mb-3">Wildlife</legend>
+              <div class="space-y-3">
+                <label class="flex items-start gap-3">
+                  <input type="checkbox" name="interests" value="Birds"
+                    class="mt-1 h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500">
+                  <span>Birds</span>
+                </label>
+                <label class="flex items-start gap-3">
+                  <input type="checkbox" name="interests" value="Monkeys"
+                    class="mt-1 h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500">
+                  <span>Monkeys</span>
+                </label>
+                <label class="flex items-start gap-3">
+                  <input type="checkbox" name="interests" value="Butterflies"
+                    class="mt-1 h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500">
+                  <span>Butterflies</span>
+                </label>
+                <label class="flex items-start gap-3">
+                  <input type="checkbox" name="interests" value="Marine Turtles"
+                    class="mt-1 h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500">
+                  <span>Marine Turtles</span>
+                </label>
+                <label class="flex items-start gap-3">
+                  <input type="checkbox" name="interests" value="Elephants"
+                    class="mt-1 h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500">
+                  <span>Elephants</span>
+                </label>
+                <label class="flex items-start gap-3">
+                  <input type="checkbox" name="interests" value="Hippos"
+                    class="mt-1 h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500">
+                  <span>Hippos</span>
+                </label>
+                <label class="flex items-start gap-3">
+                  <input type="checkbox" name="interests" value="Baboons"
+                    class="mt-1 h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500">
+                  <span>Baboons</span>
+                </label>
+                <label class="flex items-start gap-3">
+                  <input type="checkbox" name="interests" value="Crocodiles"
+                    class="mt-1 h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500">
+                  <span>Crocodiles</span>
+                </label>
+                <label class="flex items-start gap-3">
+                  <input type="checkbox" name="interests" value="Bats"
+                    class="mt-1 h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500">
+                  <span>Bats</span>
+                </label>
+              </div>
+            </fieldset>
+
+            <!-- Recreation -->
+            <fieldset class="space-y-3" aria-labelledby="recreation-legend">
+              <legend id="recreation-legend" class="text-xl font-semibold text-gray-800 mb-3">Recreation</legend>
+              <div class="space-y-3">
+                <label class="flex items-start gap-3">
+                  <input type="checkbox" name="interests" value="Golf"
+                    class="mt-1 h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500">
+                  <span>Golf</span>
+                </label>
+                <label class="flex items-start gap-3">
+                  <input type="checkbox" name="interests" value="Fishing"
+                    class="mt-1 h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500">
+                  <span>Fishing</span>
+                </label>
+                <label class="flex items-start gap-3">
+                  <input type="checkbox" name="interests" value="Swimming"
+                    class="mt-1 h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500">
+                  <span>Swimming</span>
+                </label>
+                <label class="flex items-start gap-3">
+                  <input type="checkbox" name="interests" value="Bicycling"
+                    class="mt-1 h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500">
+                  <span>Bicycling</span>
+                </label>
+                <label class="flex items-start gap-3">
+                  <input type="checkbox" name="interests" value="Football (soccer)"
+                    class="mt-1 h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500">
+                  <span>Football (Soccer)</span>
+                </label>
+                <label class="flex items-start gap-3">
+                  <input type="checkbox" name="interests" value="Hiking"
+                    class="mt-1 h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500">
+                  <span>Hiking</span>
+                </label>
+                <label class="flex items-start gap-3">
+                  <input type="checkbox" name="interests" value="Weightlifting"
+                    class="mt-1 h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500">
+                  <span>Weightlifting</span>
+                </label>
+                <label class="flex items-start gap-3">
+                  <input type="checkbox" name="interests" value="Surfing"
+                    class="mt-1 h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500">
+                  <span>Surfing</span>
+                </label>
+              </div>
+            </fieldset>
+
+          </div>
+        </div>
+
+        <!-- One Extra Bag Section -->
+        <div class="mt-12 bg-blue-50 rounded-lg p-6 sm:p-8 border border-blue-200">
+          <h3 class="text-2xl font-bold text-gray-900 mb-4">One Extra Bag</h3>
+          <p class="text-gray-700 mb-6">
+            Interested in Giving Back? While these are not traditional tourist sites, if you'd like to visit a local
+            school, clinic, or community organization to present a gift, our One Extra Bag program can help facilitate
+            the experience. For many travelers, this meaningful interaction becomes a highlight of their journey.
+          </p>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <!-- Primary School -->
+            <div class="bg-white p-4 rounded-lg shadow-sm border border-gray-200">
+              <label class="flex items-start gap-3">
+                <input type="checkbox" name="extra_bag[]" value="primary_school"
+                  class="mt-1 h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500">
+                <div>
+                  <h4 class="font-semibold text-lg text-gray-800">Primary School</h4>
+                  <p class="text-gray-600 text-sm mt-1">
+                    <span class="font-medium">Needs:</span> Workbooks, story books, pencils, and other school supplies
+                    (inexpensive to purchase in Ghana). Football gear and athletic equipment are especially needed.
+                  </p>
+                </div>
+              </label>
+            </div>
+
+            <!-- Orphanage -->
+            <div class="bg-white p-4 rounded-lg shadow-sm border border-gray-200">
+              <label class="flex items-start gap-3">
+                <input type="checkbox" name="extra_bag[]" value="orphanage"
+                  class="mt-1 h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500">
+                <div>
+                  <h4 class="font-semibold text-lg text-gray-800">Orphanage</h4>
+                  <p class="text-gray-600 text-sm mt-1">
+                    <span class="font-medium">Needs:</span> Clothing and shoes in good condition.
+                    Underpants must be in new packaging. Natural fiber clothing for warm weather is preferred.
+                  </p>
+                </div>
+              </label>
+            </div>
+
+            <!-- HIV Prevention Group/Clinic -->
+            <div class="bg-white p-4 rounded-lg shadow-sm border border-gray-200">
+              <label class="flex items-start gap-3">
+                <input type="checkbox" name="extra_bag[]" value="hiv_clinic"
+                  class="mt-1 h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500">
+                <div>
+                  <h4 class="font-semibold text-lg text-gray-800">HIV Prevention Group or Clinic</h4>
+                  <p class="text-gray-600 text-sm mt-1">
+                    <span class="font-medium">Needs:</span> Condoms, over-the-counter or prescription medicine.
+                    <span class="text-red-600">No expired products.</span>
+                  </p>
+                </div>
+              </label>
+            </div>
+
+            <!-- Hospital/Clinic -->
+            <div class="bg-white p-4 rounded-lg shadow-sm border border-gray-200">
+              <label class="flex items-start gap-3">
+                <input type="checkbox" name="extra_bag[]" value="hospital"
+                  class="mt-1 h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500">
+                <div>
+                  <h4 class="font-semibold text-lg text-gray-800">Hospital or Women's Clinic</h4>
+                  <p class="text-gray-600 text-sm mt-1">
+                    <span class="font-medium">Needs:</span> Over-the-counter medicine, bandages, pain relievers,
+                    and basic medical supplies. <span class="text-red-600">No expired products.</span>
+                  </p>
+                </div>
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <!-- Anything Else Section -->
+        <div class="mt-12 bg-gray-50 rounded-lg p-6 sm:p-8 border border-gray-200">
+          <h3 class="text-2xl font-bold text-gray-900 mb-4">Anything else?</h3>
+          <p class="text-gray-700 mb-6">
+            Enter additional information below. The more we know, the better we can meet your wishes!
+          </p>
+
+          <div class="space-y-6">
+            <!-- How did you hear about us -->
+            <div>
+              <h4 class="text-lg font-medium text-gray-800 mb-3">How did you hear about Nasaf Tour Ghana?</h4>
+              <textarea name="how_did_you_hear" rows="3"
+                class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+                placeholder="Friend recommendation, social media, search engine, etc."></textarea>
+            </div>
+
+            <!-- Mailing list checkbox -->
+            <div class="flex items-start gap-3">
+              <input id="mailing_list" name="mailing_list" type="checkbox"
+                class="mt-1 h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500">
+              <label for="mailing_list" class="text-sm font-medium text-gray-700 pl-8">
+                Join our mailing list. We email twice yearly. We do not distribute or sell any email address.
+              </label>
+            </div>
+
+            <!-- reCAPTCHA placeholder -->
+            <div class="flex items-start gap-3">
+              <input id="not_robot" name="not_robot" type="checkbox"
+                class="mt-1 h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500">
+              <div>
+                <label for="not_robot" class="text-sm font-medium text-gray-700">
+                  I'm not a robot
+                </label>
+                <p class="text-xs text-gray-500 mt-1">
+                  reCAPTCHA<br>
+                  Privacy - Terms
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Submit Button -->
+        <div class="text-center mt-8">
+          <button type="submit"
+          
+            class="inline-block bg-brand text-white px-6 py-3 rounded-md text-base font-semibold shadow hover:bg-blue-700 transition duration-300">
+            Confirm Booking
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</section>
+
+{% endblock %}

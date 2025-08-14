@@ -1,0 +1,94 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<article class="container mx-auto py-16 px-4 max-w-5xl">
+  <!-- Destination Header -->
+  <header class="mb-10">
+    <h1 class="text-4xl font-extrabold text-gray-900 mb-2">{{ destination.name }}</h1>
+    {% if destination.location %}
+    <p class="text-lg text-gray-500">{{ destination.location }}</p>
+    {% endif %}
+  </header>
+
+  <!-- Main Image -->
+  <div class="mb-12">
+    <img 
+      src="{{ destination.image.url }}" 
+      alt="{{ destination.name }}" 
+      class="w-full h-72 md:h-[28rem] object-cover rounded-xl shadow-lg"
+    >
+  </div>
+
+  <!-- Destination Description -->
+  <div class="prose prose-lg max-w-none text-gray-700 leading-relaxed">
+    {{ destination.description|safe }}
+  </div>
+
+  <!-- Related Destinations -->
+  {% if related_destinations %}
+  <section class="mt-20">
+    <h2 class="text-2xl font-bold text-gray-900 mb-8">More Destinations to Explore</h2>
+    <div class="grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
+      {% for dest in related_destinations %}
+      <div class="bg-white border border-gray-200 rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow duration-300">
+        <a href="{% url 'destination-detail' slug=dest.slug %}">
+          <img 
+            src="{{ dest.image.url }}" 
+            alt="{{ dest.name }}" 
+            class="w-full h-40 object-cover transition-transform duration-300 hover:scale-105"
+          >
+        </a>
+        <div class="p-5">
+          <h3 class="text-lg font-semibold text-gray-800 mb-2">
+            <a href="{% url 'destination-detail' slug=dest.slug %}" class="hover:text-brand transition-colors">
+              {{ dest.name }}
+            </a>
+          </h3>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </section>
+  {% endif %}
+</article>
+{% endblock %}
+
+<!-- {% extends 'base.html' %}
+
+{% block content %}
+<article class="container mx-auto py-12 px-4 max-w-4xl">
+  <div class="mb-8">
+    <h1 class="text-3xl font-bold mb-2">{{ destination.name }}</h1>
+    {% if destination.location %}
+    <p class="text-gray-600">{{ destination.location }}</p>
+    {% endif %}
+  </div>
+
+  <img src="{{ destination.image.url }}" alt="{{ destination.name }}" 
+       class="w-full h-64 md:h-96 object-cover rounded-lg mb-8">
+
+  <div class="prose max-w-none">
+    {{ destination.description|safe }}
+  </div>
+
+  {% if related_destinations %}
+  <section class="mt-16">
+    <h2 class="text-2xl font-bold mb-6">More Destinations to Explore</h2>
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+      {% for dest in related_destinations %}
+      <div class="border rounded-lg overflow-hidden">
+        <img src="{{ dest.image.url }}" alt="{{ dest.name }}" class="w-full h-32 object-cover">
+        <div class="p-4">
+          <h3 class="font-bold">
+            <a href="{% url 'destination-detail' slug=dest.slug %}" class="hover:text-brand">
+              {{ dest.name }}
+            </a>
+          </h3>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </section>
+  {% endif %}
+</article>
+{% endblock %} -->
