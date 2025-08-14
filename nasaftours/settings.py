@@ -24,71 +24,73 @@ SECURE_HSTS_SECONDS = 31536000 if not DEBUG else 0  # 1 year HSTS
 SECURE_HSTS_INCLUDE_SUBDOMAINS = not DEBUG
 SECURE_HSTS_PRELOAD = not DEBUG
 SECURE_CONTENT_TYPE_NOSNIFF = True
-X_FRAME_OPTIONS = 'DENY'
+X_FRAME_OPTIONS = "DENY"
 CSRF_COOKIE_SECURE = not DEBUG
 SESSION_COOKIE_SECURE = not DEBUG
 
 # Application definition
 INSTALLED_APPS = [
-    'django.contrib.admin',
-    'django.contrib.auth',
-    'django.contrib.contenttypes',
-    'django.contrib.sessions',
-    'django.contrib.messages',
-    'django.contrib.staticfiles',
-    'tourghanaapp',
-    'compressor',
-    'ckeditor',
-    'ckeditor_uploader',
-    'storages',
-    'corsheaders',
+    "django.contrib.admin",
+    "django.contrib.auth",
+    "django.contrib.contenttypes",
+    "django.contrib.sessions",
+    "django.contrib.messages",
+    "django.contrib.staticfiles",
+    "tourghanaapp",
+    "compressor",
+    "ckeditor",
+    "ckeditor_uploader",
+    "storages",
+    "corsheaders",
 ]
 
 MIDDLEWARE = [
-    'django.middleware.security.SecurityMiddleware',
-    'whitenoise.middleware.WhiteNoiseMiddleware',
-    'corsheaders.middleware.CorsMiddleware',
-    'django.contrib.sessions.middleware.SessionMiddleware',
-    'django.middleware.common.CommonMiddleware',
-    'django.middleware.csrf.CsrfViewMiddleware',
-    'django.contrib.auth.middleware.AuthenticationMiddleware',
-    'django.contrib.messages.middleware.MessageMiddleware',
-    'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    "django.middleware.security.SecurityMiddleware",
+    "whitenoise.middleware.WhiteNoiseMiddleware",
+    "corsheaders.middleware.CorsMiddleware",
+    "django.contrib.sessions.middleware.SessionMiddleware",
+    "django.middleware.common.CommonMiddleware",
+    "django.middleware.csrf.CsrfViewMiddleware",
+    "django.contrib.auth.middleware.AuthenticationMiddleware",
+    "django.contrib.messages.middleware.MessageMiddleware",
+    "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
 
 # CORS settings (uncomment if needed)
 CORS_ALLOWED_ORIGINS = os.getenv("CORS_ALLOWED_ORIGINS", "").split(",")
 
-ROOT_URLCONF = 'nasaftours.urls'
+ROOT_URLCONF = "nasaftours.urls"
 
 TEMPLATES = [
     {
-        'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [BASE_DIR / 'templates'],
-        'APP_DIRS': True,
-        'OPTIONS': {
-            'context_processors': [
-                'django.template.context_processors.request',
-                'django.contrib.auth.context_processors.auth',
-                'django.contrib.messages.context_processors.messages',
+        "BACKEND": "django.template.backends.django.DjangoTemplates",
+        "DIRS": [BASE_DIR / "templates"],
+        "APP_DIRS": True,
+        "OPTIONS": {
+            "context_processors": [
+                "django.template.context_processors.request",
+                "django.contrib.auth.context_processors.auth",
+                "django.contrib.messages.context_processors.messages",
             ],
         },
     },
 ]
 
-WSGI_APPLICATION = 'nasaftours.wsgi.application'
+WSGI_APPLICATION = "nasaftours.wsgi.application"
 
 # Database (Azure PostgreSQL)
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': os.getenv('DATABASE_NAME', 'nasaftours_db'),
-        'USER': os.getenv('DATABASE_USERNAME', 'postgres'),
-        'PASSWORD': os.getenv('DATABASE_PASSWORD', ''),
-        'HOST': os.getenv('DATABASE_HOST', 'your-postgres-server.postgres.database.azure.com'),
-        'PORT': os.getenv('DATABASE_PORT', '5432'),
-        'OPTIONS': {
-            'sslmode': 'require',  # Enforce SSL for Azure PostgreSQL
+    "default": {
+        "ENGINE": "django.db.backends.postgresql",
+        "NAME": os.getenv("DATABASE_NAME", "nasaftours_db"),
+        "USER": os.getenv("DATABASE_USERNAME", "postgres"),
+        "PASSWORD": os.getenv("DATABASE_PASSWORD", ""),
+        "HOST": os.getenv(
+            "DATABASE_HOST", "your-postgres-server.postgres.database.azure.com"
+        ),
+        "PORT": os.getenv("DATABASE_PORT", "5432"),
+        "OPTIONS": {
+            "sslmode": "require",  # Enforce SSL for Azure PostgreSQL
         },
     }
 }
@@ -96,40 +98,40 @@ DATABASES = {
 # Password validation
 AUTH_PASSWORD_VALIDATORS = [
     {
-        'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
+        "NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator",
     },
     {
-        'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
+        "NAME": "django.contrib.auth.password_validation.MinimumLengthValidator",
     },
     {
-        'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',
+        "NAME": "django.contrib.auth.password_validation.CommonPasswordValidator",
     },
     {
-        'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
+        "NAME": "django.contrib.auth.password_validation.NumericPasswordValidator",
     },
 ]
 
 # Internationalization
-LANGUAGE_CODE = 'en-us'
-TIME_ZONE = 'Africa/Accra'
+LANGUAGE_CODE = "en-us"
+TIME_ZONE = "Africa/Accra"
 USE_I18N = True
 USE_TZ = True
 
 # Static files
-STATIC_URL = '/static/'
-STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+STATIC_URL = "/static/"
+STATIC_ROOT = os.path.join(BASE_DIR, "staticfiles")
 STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
-COMPRESS_ROOT = BASE_DIR / 'static'
+COMPRESS_ROOT = BASE_DIR / "static"
 COMPRESS_ENABLED = True
 
 STATICFILES_FINDERS = [
-    'django.contrib.staticfiles.finders.FileSystemFinder',
-    'django.contrib.staticfiles.finders.AppDirectoriesFinder',
-    'compressor.finders.CompressorFinder',
+    "django.contrib.staticfiles.finders.FileSystemFinder",
+    "django.contrib.staticfiles.finders.AppDirectoriesFinder",
+    "compressor.finders.CompressorFinder",
 ]
 
 # Media files (Azure Storage)
-DEFAULT_FILE_STORAGE = 'tourghanaapp.storage_backends.AzureMediaStorage'
+DEFAULT_FILE_STORAGE = "tourghanaapp.storage_backends.AzureMediaStorage"
 AZURE_ACCOUNT_NAME = os.getenv("AZURE_ACCOUNT_NAME", "nasaftoursstoragedev")
 AZURE_ACCOUNT_KEY = os.getenv("AZURE_ACCOUNT_KEY")
 AZURE_CONTAINER = "media"
@@ -138,71 +140,81 @@ MEDIA_URL = f"https://{AZURE_CUSTOM_DOMAIN}/{AZURE_CONTAINER}/"
 
 # CKEditor Configuration
 CKEDITOR_UPLOAD_PATH = "ckeditor/"
-CKEDITOR_STORAGE_BACKEND = 'tourghanaapp.storage_backends.AzureMediaStorage'
+CKEDITOR_STORAGE_BACKEND = "tourghanaapp.storage_backends.AzureMediaStorage"
 CKEDITOR_IMAGE_BACKEND = "pillow"
 CKEDITOR_BROWSE_SHOW_DIRS = True
 CKEDITOR_RESTRICT_BY_USER = True
 CKEDITOR_ALLOW_NONIMAGE_FILES = False
 
 CKEDITOR_CONFIGS = {
-    'default': {
-        'toolbar': 'Custom',
-        'toolbar_Custom': [
-            ['Bold', 'Italic', 'Underline'],
-            ['NumberedList', 'BulletedList', '-', 'Outdent', 'Indent', '-', 
-             'JustifyLeft', 'JustifyCenter', 'JustifyRight', 'JustifyBlock'],
-            ['Link', 'Unlink'],
-            ['RemoveFormat', 'Source', 'Image', 'Table']
+    "default": {
+        "toolbar": "Custom",
+        "toolbar_Custom": [
+            ["Bold", "Italic", "Underline"],
+            [
+                "NumberedList",
+                "BulletedList",
+                "-",
+                "Outdent",
+                "Indent",
+                "-",
+                "JustifyLeft",
+                "JustifyCenter",
+                "JustifyRight",
+                "JustifyBlock",
+            ],
+            ["Link", "Unlink"],
+            ["RemoveFormat", "Source", "Image", "Table"],
         ],
-        'height': 300,
-        'width': '100%',
-        'extraPlugins': 'uploadimage',
-        'filebrowserUploadUrl': '/ckeditor/upload/',
-        'uploadUrl': '/ckeditor/upload/',
-        'removePlugins': 'iframe,flash,scayt,wsc',
-        'allowedContent': False,
-        'forcePasteAsPlainText': True,
-        'image_previewText': ' ',
+        "height": 300,
+        "width": "100%",
+        "extraPlugins": "uploadimage",
+        "filebrowserUploadUrl": "/ckeditor/upload/",
+        "uploadUrl": "/ckeditor/upload/",
+        "removePlugins": "iframe,flash,scayt,wsc",
+        "allowedContent": False,
+        "forcePasteAsPlainText": True,
+        "image_previewText": " ",
     },
 }
 
 # Email settings
-EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_HOST = os.getenv('EMAIL_HOST')
-EMAIL_PORT = int(os.getenv('EMAIL_PORT', 587))
-EMAIL_USE_TLS = os.getenv('EMAIL_USE_TLS', 'True') == 'True'
-EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER')
-EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD')
-DEFAULT_FROM_EMAIL = os.getenv('EMAIL_HOST_USER')
+EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
+EMAIL_HOST = os.getenv("EMAIL_HOST")
+EMAIL_PORT = int(os.getenv("EMAIL_PORT", 587))
+EMAIL_USE_TLS = os.getenv("EMAIL_USE_TLS", "True") == "True"
+EMAIL_HOST_USER = os.getenv("EMAIL_HOST_USER")
+EMAIL_HOST_PASSWORD = os.getenv("EMAIL_HOST_PASSWORD")
+DEFAULT_FROM_EMAIL = os.getenv("EMAIL_HOST_USER")
 
 # Logging configuration
 LOGGING = {
-    'version': 1,
-    'disable_existing_loggers': False,
-    'formatters': {
-        'verbose': {
-            'format': '{levelname} {asctime} {module} {message}',
-            'style': '{',
+    "version": 1,
+    "disable_existing_loggers": False,
+    "formatters": {
+        "verbose": {
+            "format": "{levelname} {asctime} {module} {message}",
+            "style": "{",
         },
     },
-    'handlers': {
-        'file': {
-            'level': 'INFO',
-            'class': 'logging.FileHandler',
-            'filename': os.path.join(BASE_DIR, 'logs', 'django.log'),
-            'formatter': 'verbose',
+    "handlers": {
+        "file": {
+            "level": "INFO",
+            "class": "logging.FileHandler",
+            "filename": os.path.join(BASE_DIR, "logs", "django.log"),
+            "formatter": "verbose",
         },
-        'console': {
-            'level': 'INFO',
-            'class': 'logging.StreamHandler',
-            'formatter': 'verbose',
+        "console": {
+            "level": "INFO",
+            "class": "logging.StreamHandler",
+            "formatter": "verbose",
         },
     },
-    'loggers': {
-        'django': {
-            'handlers': ['file', 'console'],
-            'level': 'INFO',
-            'propagate': True,
+    "loggers": {
+        "django": {
+            "handlers": ["file", "console"],
+            "level": "INFO",
+            "propagate": True,
         },
     },
 }
@@ -220,7 +232,7 @@ LOGGING = {
 # }
 
 # Default primary key
-DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 # """
 # Django settings for nasaftours project.
 # Generated by 'django-admin startproject' using Django 5.2.1.
@@ -368,7 +380,7 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 #         'toolbar': 'Custom',
 #         'toolbar_Custom': [
 #             ['Bold', 'Italic', 'Underline'],
-#             ['NumberedList', 'BulletedList', '-', 'Outdent', 'Indent', '-', 
+#             ['NumberedList', 'BulletedList', '-', 'Outdent', 'Indent', '-',
 #              'JustifyLeft', 'JustifyCenter', 'JustifyRight', 'JustifyBlock'],
 #             ['Link', 'Unlink'],
 #             ['RemoveFormat', 'Source', 'Image', 'Table']
@@ -536,7 +548,7 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 # #         'toolbar': 'Custom',
 # #         'toolbar_Custom': [
 # #             ['Bold', 'Italic', 'Underline'],
-# #             ['NumberedList', 'BulletedList', '-', 'Outdent', 'Indent', '-', 
+# #             ['NumberedList', 'BulletedList', '-', 'Outdent', 'Indent', '-',
 # #              'JustifyLeft', 'JustifyCenter', 'JustifyRight', 'JustifyBlock'],
 # #             ['Link', 'Unlink'],
 # #             ['RemoveFormat', 'Source', 'Image', 'Table']
@@ -618,7 +630,7 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 # # #         'toolbar': 'Custom',
 # # #         'toolbar_Custom': [
 # # #             ['Bold', 'Italic', 'Underline'],
-# # #             ['NumberedList', 'BulletedList', '-', 'Outdent', 'Indent', '-', 
+# # #             ['NumberedList', 'BulletedList', '-', 'Outdent', 'Indent', '-',
 # # #              'JustifyLeft', 'JustifyCenter', 'JustifyRight', 'JustifyBlock'],
 # # #             ['Link', 'Unlink'],
 # # #             ['RemoveFormat', 'Source', 'Image', 'Table']
@@ -661,7 +673,7 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # # # # SECURITY WARNING: keep the secret key used in production secret!
 # # # SECRET_KEY = os.environ.get("DJANGO_SECRET_KEY")
-# # # # 
+# # # #
 # # # # SECURITY WARNING: don't run with debug turned on in production!
 # # # # DEBUG = bool(os.environ.get("DEBUG", default=0))
 

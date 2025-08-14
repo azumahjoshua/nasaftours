@@ -10,90 +10,178 @@ class Migration(migrations.Migration):
 
     initial = True
 
-    dependencies = [
-    ]
+    dependencies = []
 
     operations = [
         migrations.CreateModel(
-            name='BlogPost',
+            name="BlogPost",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('title', models.CharField(max_length=200)),
-                ('slug', models.SlugField(blank=True, max_length=200, unique=True)),
-                ('content', ckeditor_uploader.fields.RichTextUploadingField()),
-                ('image', models.ImageField(blank=True, null=True, upload_to='blog_images/')),
-                ('created_at', models.DateTimeField(auto_now_add=True)),
-                ('is_featured', models.BooleanField(default=False)),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("title", models.CharField(max_length=200)),
+                ("slug", models.SlugField(blank=True, max_length=200, unique=True)),
+                ("content", ckeditor_uploader.fields.RichTextUploadingField()),
+                (
+                    "image",
+                    models.ImageField(blank=True, null=True, upload_to="blog_images/"),
+                ),
+                ("created_at", models.DateTimeField(auto_now_add=True)),
+                ("is_featured", models.BooleanField(default=False)),
             ],
         ),
         migrations.CreateModel(
-            name='ContactMessage',
+            name="ContactMessage",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('name', models.CharField(max_length=100)),
-                ('email', models.EmailField(max_length=254)),
-                ('message', models.TextField()),
-                ('submitted_at', models.DateTimeField(auto_now_add=True)),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("name", models.CharField(max_length=100)),
+                ("email", models.EmailField(max_length=254)),
+                ("message", models.TextField()),
+                ("submitted_at", models.DateTimeField(auto_now_add=True)),
             ],
         ),
         migrations.CreateModel(
-            name='ExtraBagOption',
+            name="ExtraBagOption",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('name', models.CharField(max_length=100)),
-                ('description', models.TextField()),
-                ('needs', models.TextField()),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("name", models.CharField(max_length=100)),
+                ("description", models.TextField()),
+                ("needs", models.TextField()),
             ],
         ),
         migrations.CreateModel(
-            name='GalleryImage',
+            name="GalleryImage",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('image', models.ImageField(upload_to='gallery_images/')),
-                ('title', models.CharField(blank=True, max_length=200)),
-                ('created_at', models.DateTimeField(auto_now_add=True)),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("image", models.ImageField(upload_to="gallery_images/")),
+                ("title", models.CharField(blank=True, max_length=200)),
+                ("created_at", models.DateTimeField(auto_now_add=True)),
             ],
         ),
         migrations.CreateModel(
-            name='InterestCategory',
+            name="InterestCategory",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('name', models.CharField(max_length=100)),
-                ('description', models.TextField(blank=True)),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("name", models.CharField(max_length=100)),
+                ("description", models.TextField(blank=True)),
             ],
         ),
         migrations.CreateModel(
-            name='Interest',
+            name="Interest",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('name', models.CharField(max_length=100)),
-                ('description', models.TextField(blank=True)),
-                ('category', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='tourghanaapp.interestcategory')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("name", models.CharField(max_length=100)),
+                ("description", models.TextField(blank=True)),
+                (
+                    "category",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to="tourghanaapp.interestcategory",
+                    ),
+                ),
             ],
         ),
         migrations.CreateModel(
-            name='TourBooking',
+            name="TourBooking",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('full_name', models.CharField(max_length=100)),
-                ('email', models.EmailField(max_length=254)),
-                ('phone', models.CharField(blank=True, max_length=20, null=True)),
-                ('tour_date', models.DateField()),
-                ('start_time', models.TimeField()),
-                ('number_of_travelers', models.PositiveIntegerField(validators=[django.core.validators.MinValueValidator(1), django.core.validators.MaxValueValidator(50)])),
-                ('duration_hours', models.PositiveIntegerField(validators=[django.core.validators.MinValueValidator(1), django.core.validators.MaxValueValidator(12)])),
-                ('how_did_you_hear', models.TextField(blank=True, null=True)),
-                ('join_mailing_list', models.BooleanField(default=False)),
-                ('additional_notes', models.TextField(blank=True, null=True)),
-                ('created_at', models.DateTimeField(auto_now_add=True)),
-                ('updated_at', models.DateTimeField(auto_now=True)),
-                ('extra_bag_options', models.ManyToManyField(blank=True, to='tourghanaapp.extrabagoption')),
-                ('interests', models.ManyToManyField(blank=True, to='tourghanaapp.interest')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("full_name", models.CharField(max_length=100)),
+                ("email", models.EmailField(max_length=254)),
+                ("phone", models.CharField(blank=True, max_length=20, null=True)),
+                ("tour_date", models.DateField()),
+                ("start_time", models.TimeField()),
+                (
+                    "number_of_travelers",
+                    models.PositiveIntegerField(
+                        validators=[
+                            django.core.validators.MinValueValidator(1),
+                            django.core.validators.MaxValueValidator(50),
+                        ]
+                    ),
+                ),
+                (
+                    "duration_hours",
+                    models.PositiveIntegerField(
+                        validators=[
+                            django.core.validators.MinValueValidator(1),
+                            django.core.validators.MaxValueValidator(12),
+                        ]
+                    ),
+                ),
+                ("how_did_you_hear", models.TextField(blank=True, null=True)),
+                ("join_mailing_list", models.BooleanField(default=False)),
+                ("additional_notes", models.TextField(blank=True, null=True)),
+                ("created_at", models.DateTimeField(auto_now_add=True)),
+                ("updated_at", models.DateTimeField(auto_now=True)),
+                (
+                    "extra_bag_options",
+                    models.ManyToManyField(
+                        blank=True, to="tourghanaapp.extrabagoption"
+                    ),
+                ),
+                (
+                    "interests",
+                    models.ManyToManyField(blank=True, to="tourghanaapp.interest"),
+                ),
             ],
             options={
-                'verbose_name': 'Tour Booking',
-                'verbose_name_plural': 'Tour Bookings',
-                'ordering': ['-created_at'],
+                "verbose_name": "Tour Booking",
+                "verbose_name_plural": "Tour Bookings",
+                "ordering": ["-created_at"],
             },
         ),
     ]

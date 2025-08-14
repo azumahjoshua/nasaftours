@@ -8,27 +8,73 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('tourghanaapp', '0002_slide_alter_blogpost_image_alter_galleryimage_image'),
+        ("tourghanaapp", "0002_slide_alter_blogpost_image_alter_galleryimage_image"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='Destination',
+            name="Destination",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('name', models.CharField(help_text="The name of the destination (e.g., 'Cape Coast Castle')", max_length=255)),
-                ('slug', models.SlugField(help_text='A URL-friendly version of the name (auto-generated if blank)', unique=True)),
-                ('location', models.CharField(blank=True, help_text="Specific location or region (e.g., 'Central Region, Ghana')", max_length=255, null=True)),
-                ('description', ckeditor.fields.RichTextField(help_text='Detailed description of the destination')),
-                ('image', models.ImageField(help_text='Featured image for this destination', storage=storages.backends.azure_storage.AzureStorage(), upload_to='destinations/')),
-                ('is_active', models.BooleanField(default=True, help_text='Toggle destination visibility on the website')),
-                ('created_at', models.DateTimeField(auto_now_add=True)),
-                ('updated_at', models.DateTimeField(auto_now=True)),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "name",
+                    models.CharField(
+                        help_text="The name of the destination (e.g., 'Cape Coast Castle')",
+                        max_length=255,
+                    ),
+                ),
+                (
+                    "slug",
+                    models.SlugField(
+                        help_text="A URL-friendly version of the name (auto-generated if blank)",
+                        unique=True,
+                    ),
+                ),
+                (
+                    "location",
+                    models.CharField(
+                        blank=True,
+                        help_text="Specific location or region (e.g., 'Central Region, Ghana')",
+                        max_length=255,
+                        null=True,
+                    ),
+                ),
+                (
+                    "description",
+                    ckeditor.fields.RichTextField(
+                        help_text="Detailed description of the destination"
+                    ),
+                ),
+                (
+                    "image",
+                    models.ImageField(
+                        help_text="Featured image for this destination",
+                        storage=storages.backends.azure_storage.AzureStorage(),
+                        upload_to="destinations/",
+                    ),
+                ),
+                (
+                    "is_active",
+                    models.BooleanField(
+                        default=True,
+                        help_text="Toggle destination visibility on the website",
+                    ),
+                ),
+                ("created_at", models.DateTimeField(auto_now_add=True)),
+                ("updated_at", models.DateTimeField(auto_now=True)),
             ],
             options={
-                'verbose_name': 'Destination',
-                'verbose_name_plural': 'Destinations',
-                'ordering': ['name'],
+                "verbose_name": "Destination",
+                "verbose_name_plural": "Destinations",
+                "ordering": ["name"],
             },
         ),
     ]
