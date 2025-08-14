@@ -1,0 +1,21 @@
+name: Django CI/CD Pipeline (Azure VM + Docker Hub)
+
+on:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+  packages: write
+
+env:
+  DOCKER_HUB_REPO: joshua192/nasaftours
+  COMPOSE_PROJECT_NAME: nasaftours-prod
+  IMAGE_TAG: ${{ github.sha }}
+
+jobs:
+  build-test-push:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code5                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       pfh,. m jh gvbfty dnjkjugjhyufuhnlhijjkdnv,.bnmcbvhdy784t9534ytt                                                                                                                                                                                                                                                                                                         21                                                                                                                                                                     
