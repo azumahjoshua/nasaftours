@@ -1,10 +1,12 @@
 asgiref==3.8.1
 azure-core==1.35.0
 azure-storage-blob==12.26.0
+black==25.1.0
 bleach==6.2.0
 certifi==2025.8.3
 cffi==1.17.1
 charset-normalizer==3.4.2
+click==8.2.1
 cryptography==45.0.5
 Django==5.2.1
 django-appconf==1.1.0
@@ -12,10 +14,14 @@ django-ckeditor==6.7.3
 django-compressor==4.5.1
 django-js-asset==3.1.2
 django-storages==1.14.6
-# django-summernote==0.8.20.0
+gunicorn==22.0.0
 idna==3.10
 isodate==0.7.2
+mypy_extensions==1.1.0
+packaging==25.0
+pathspec==0.12.1
 pillow==11.3.0
+platformdirs==4.3.8
 psycopg2-binary==2.9.10
 pycparser==2.22
 python-dotenv==1.1.1
