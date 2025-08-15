@@ -1,6 +1,7 @@
 services:
   db:
     image: postgres:17
+    restart: always
     environment:
       POSTGRES_DB: ${DATABASE_NAME}
       POSTGRES_USER: ${DATABASE_USERNAME}
@@ -13,8 +14,8 @@ services:
       - .env
 
   django-web:
-    build: .
-    container_name: nasaftours_web
+    image: joshua192/nasaftours:${IMAGE_TAG}  # replaced by CD pipeline
+    restart: always
     ports:
       - "8000:8000"
     depends_on:
@@ -33,9 +34,8 @@ services:
     env_file:
       - .env
     volumes:
-      - ./logs:/app/logs  # persist logs safely
-      - ./staticfiles:/app/staticfiles
+      - /app/logs:/app/logs        # VM-owned dir (UID 1000)
+      - /app/staticfiles:/app/staticfiles  # VM-owned dir (UID 1000)
 
 volumes:
   postgres_data:
-

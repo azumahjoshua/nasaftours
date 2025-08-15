@@ -61,6 +61,7 @@ jobs:
           AZURE_CUSTOM_DOMAIN=${{ secrets.AZURE_CUSTOM_DOMAIN }}
           EOF
 
+          # Create logs and staticfiles dirs with correct ownership for Django container
           sudo mkdir -p /app/logs /app/staticfiles
           sudo chown -R 1000:1000 /app/logs /app/staticfiles
           EOT
@@ -90,7 +91,11 @@ jobs:
 
           # Wait for Django container to be healthy
           for i in {1..10}; do
-              if curl --fail http://localhost:8000/health; then break; fi
+              if curl --fail http://localhost:8000/health; then
+                  echo "Django is healthy"
+                  break
+              fi
+              echo "Waiting for Django to be ready... ($i/10)"
               sleep 5
           done
 
@@ -102,7 +107,7 @@ jobs:
           if ! curl --fail http://localhost:8000/health; then
               echo "Deployment failed, rolling back..."
               if [ -f previous_tag.txt ] && [ "$CURRENT_TAG" != "none" ]; then
-                  sudo sed -i "s/:${{ env.IMAGE_TAG }}/:$CURRENT_TAG/" docker-compose.prod.yml
+                  sudo sed -i "s|:${IMAGE_TAG}|:${CURRENT_TAG}|" docker-compose.prod.yml
                   sudo docker compose -f docker-compose.prod.yml up -d
               fi
               exit 1
