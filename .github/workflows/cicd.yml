@@ -106,75 +106,85 @@ jobs:
       - name: Prepare production compose file
         run: |
           mkdir -p deployment
+          # Create production compose file without build context and container_name
           sed -e "s|build: .|image: ${{ env.DOCKER_HUB_REPO }}:${{ github.sha }}|" \
               -e "s/container_name: nasaftours_web//" \
               compose.yml > deployment/docker-compose.prod.yml
 
-      - name: Setup SSH
+      - name: Setup SSH and create .env on VM
         run: |
           mkdir -p ~/.ssh
           echo "${{ secrets.AZURE_VM_SSH_KEY }}" > ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa
           ssh-keyscan -H ${{ secrets.AZURE_VM_IP }} >> ~/.ssh/known_hosts
+          # Test SSH connection
           ssh -o StrictHostKeyChecking=no ${{ secrets.AZURE_VM_USER }}@${{ secrets.AZURE_VM_IP }} "echo 'SSH connection test successful'"
+          # Create .env file on VM
+          ssh ${{ secrets.AZURE_VM_USER }}@${{ secrets.AZURE_VM_IP }} << 'EOF'
+          cd ~/nasaftours || mkdir -p ~/nasaftours
+          cat > .env <<EOL
+          DATABASE_NAME=${{ secrets.DATABASE_NAME }}
+          DATABASE_USERNAME=${{ secrets.DATABASE_USERNAME }}
+          DATABASE_PASSWORD=${{ secrets.DATABASE_PASSWORD }}
+          DATABASE_HOST=db
+          DATABASE_PORT=5432
+          DATABASE_ENGINE=postgresql
+          DJANGO_SECRET_KEY=${{ secrets.DJANGO_SECRET_KEY }}
+          DJANGO_LOGLEVEL=info
+          DJANGO_ALLOWED_HOSTS=${{ secrets.ALLOWED_HOSTS }}
+          DEBUG=False
+          EMAIL_HOST_USER=${{ secrets.EMAIL_HOST_USER }}
+          EMAIL_HOST_PASSWORD=${{ secrets.EMAIL_HOST_PASSWORD }}
+          AZURE_ACCOUNT_NAME=${{ secrets.AZURE_ACCOUNT_NAME }}
+          AZURE_ACCOUNT_KEY=${{ secrets.AZURE_ACCOUNT_KEY }}
+          AZURE_MEDIA_CONTAINER=media
+          AZURE_CUSTOM_DOMAIN=${{ secrets.AZURE_CUSTOM_DOMAIN }}
+          EOL
+          EOF
 
       - name: Copy compose file to Azure VM
         run: |
-          ssh ${{ secrets.AZURE_VM_USER }}@${{ secrets.AZURE_VM_IP }} "mkdir -p ~/nasaftours"
-          scp -o StrictHostKeyChecking=no \
-            deployment/docker-compose.prod.yml \
+          scp -o StrictHostKeyChecking=no deployment/docker-compose.prod.yml \
             ${{ secrets.AZURE_VM_USER }}@${{ secrets.AZURE_VM_IP }}:~/nasaftours/
 
       - name: Deploy on Azure VM
         run: |
-          ssh -o StrictHostKeyChecking=no \
-            ${{ secrets.AZURE_VM_USER }}@${{ secrets.AZURE_VM_IP }} << 'EOF'
-            cd ~/nasaftours
-            CURRENT_TAG=$(docker-compose -f docker-compose.prod.yml config | grep image | awk '{print $2}' | cut -d':' -f2 || echo "none")
-            echo $CURRENT_TAG > previous_tag.txt
-            
-            docker compose -f docker-compose.prod.yml down
-            
-            docker compose -f docker-compose.prod.yml pull db
-            docker compose -f docker-compose.prod.yml pull || { docker compose -f docker-compose.prod.yml logs; exit 1; }
-            
-            DJANGO_SECRET_KEY=${{ secrets.DJANGO_SECRET_KEY }} \
-            DJANGO_LOGLEVEL=info \
-            DJANGO_ALLOWED_HOSTS=${{ secrets.AZURE_VM_IP }} \
-            EMAIL_HOST=smtp.gmail.com \
-            EMAIL_PORT=587 \
-            EMAIL_USE_TLS=True \
-            EMAIL_HOST_USER=${{ secrets.EMAIL_HOST_USER }} \
-            EMAIL_HOST_PASSWORD=${{ secrets.EMAIL_HOST_PASSWORD }} \
-            DATABASE_ENGINE=postgresql \
-            DATABASE_NAME=${{ secrets.DATABASE_NAME }} \
-            DATABASE_USERNAME=${{ secrets.DATABASE_USERNAME }} \
-            DATABASE_PASSWORD=${{ secrets.DATABASE_PASSWORD }} \
-            DATABASE_HOST=db \
-            DATABASE_PORT=5432 \
-            AZURE_ACCOUNT_NAME=${{ secrets.AZURE_ACCOUNT_NAME }} \
-            AZURE_ACCOUNT_KEY=${{ secrets.AZURE_ACCOUNT_KEY }} \
-            AZURE_MEDIA_CONTAINER=media \
-            AZURE_CUSTOM_DOMAIN=${{ secrets.AZURE_CUSTOM_DOMAIN }} \
-            docker compose -f docker-compose.prod.yml up -d || { docker compose -f docker-compose.prod.yml logs; exit 1; }
-            
-            docker compose -f docker-compose.prod.yml exec django-web python manage.py migrate
-            docker compose -f docker-compose.prod.yml exec django-web python manage.py collectstatic --noinput
-            
-            if ! curl --fail http://localhost:8000/health; then
-              echo "Deployment failed, rolling back"
-              if [ -f previous_tag.txt ] && [ "$CURRENT_TAG" != "none" ]; then
-                sed -i "s/:${{ github.sha }}/:$CURRENT_TAG/" docker-compose.prod.yml
-                docker compose -f docker-compose.prod.yml up -d
-              fi
-              exit 1
-            fi
-            
-            docker compose -f docker-compose.prod.yml restart django-web
-            
-            docker image prune -f
-          EOF
+          ssh -o StrictHostKeyChecking=no ${{ secrets.AZURE_VM_USER }}@${{ secrets.AZURE_VM_IP }} << 'EOF'
+          cd ~/nasaftours
 
+          # Backup current image tag
+          CURRENT_TAG=$(docker compose -f docker-compose.prod.yml config | grep image | awk '{print $2}' | cut -d':' -f2 || echo "none")
+          echo $CURRENT_TAG > previous_tag.txt
+
+          # Stop and remove old containers
+          docker compose -f docker-compose.prod.yml down
+
+          # Pull latest images
+          docker compose -f docker-compose.prod.yml pull db
+          docker compose -f docker-compose.prod.yml pull || { docker compose -f docker-compose.prod.yml logs; exit 1; }
+
+          # Start services
+          docker compose -f docker-compose.prod.yml up -d || { docker compose -f docker-compose.prod.yml logs; exit 1; }
+
+          # Run Django migrations and collect static files
+          docker compose -f docker-compose.prod.yml exec django-web python manage.py migrate
+          docker compose -f docker-compose.prod.yml exec django-web python manage.py collectstatic --noinput
+
+          # Health check
+          if ! curl --fail http://localhost:8000/health; then
+            echo "Deployment failed, rolling back"
+            if [ -f previous_tag.txt ] && [ "$CURRENT_TAG" != "none" ]; then
+              sed -i "s/:${{ github.sha }}/:$CURRENT_TAG/" docker-compose.prod.yml
+              docker compose -f docker-compose.prod.yml up -d
+            fi
+            exit 1
+          fi
+
+          # Restart web service and cleanup
+          docker compose -f docker-compose.prod.yml restart django-web
+          docker image prune -f
+          EOF
+          
   # notify:
   #   needs: deploy-to-azure
   #   if: always()
