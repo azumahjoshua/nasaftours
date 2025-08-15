@@ -54,6 +54,12 @@ jobs:
         run: |
           pip-audit --requirement requirements.txt --strict
 
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+        with:
+          install: true
+          driver: docker-container
+
       - name: Build Docker image
         uses: docker/build-push-action@v4.1.1
         with:
