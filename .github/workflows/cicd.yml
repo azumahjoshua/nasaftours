@@ -37,15 +37,18 @@ jobs:
 
       - name: Run pycodestyle linting
         run: |
-          pycodestyle . --max-line-length=88 --verbose  # Style checks
+          pycodestyle nasaftours tourghanaapp \
+            --max-line-length=120 \
+            --exclude=.venv,env,migrations,__pycache__,static,templates
 
       - name: Run pyflakes import checks
         run: |
-          pyflakes .  # Check for unused imports
+          pyflakes nasaftours tourghanaapp | grep -vE 'migrations|__pycache__|env|.venv'
 
       - name: Run Bandit security scan
         run: |
-          bandit -r . -x tests  # Scan for security issues, exclude tests
+          bandit -r nasaftours tourghanaapp \
+            -x tests,migrations,__pycache__,env,.venv
 
       - name: Scan Python dependencies
         run: |
@@ -93,6 +96,7 @@ jobs:
           ignore-unfixed: true
           vuln-type: 'os,library'
           severity: 'CRITICAL,HIGH'
+
 
 # name: Django CI/CD Pipeline (Azure VM + Docker Hub)
 

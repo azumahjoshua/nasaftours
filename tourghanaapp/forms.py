@@ -11,19 +11,22 @@ class ContactMessageForm(forms.ModelForm):
         widgets = {
             "name": forms.TextInput(
                 attrs={
-                    "class": "mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-amber-500 focus:border-amber-500",
+                    "class": "mt-1 block w-full border-gray-300 rounded-md shadow-sm "
+                    "focus:ring-amber-500 focus:border-amber-500",
                     "placeholder": "Full Name",
                 }
             ),
             "email": forms.EmailInput(
                 attrs={
-                    "class": "mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-amber-500 focus:border-amber-500",
+                    "class": "mt-1 block w-full border-gray-300 rounded-md shadow-sm "
+                    "focus:ring-amber-500 focus:border-amber-500",
                     "placeholder": "Email Address",
                 }
             ),
             "message": forms.Textarea(
                 attrs={
-                    "class": "mt-1 block w-full border border-gray-300 rounded-md shadow-sm focus:ring-amber-500 focus:border-amber-500",
+                    "class": "mt-1 block w-full border border-gray-300 rounded-md shadow-sm "
+                    "focus:ring-amber-500 focus:border-amber-500",
                     "rows": 5,
                     "placeholder": "Your Message",
                 }
@@ -65,21 +68,24 @@ class TourBookingForm(forms.ModelForm):
         widgets = {
             "full_name": forms.TextInput(
                 attrs={
-                    "class": "mt-1 block w-full py-2 px-4 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 sm:text-sm",
+                    "class": "mt-1 block w-full py-2 px-4 border border-gray-300 rounded-md "
+                    "focus:ring-blue-500 focus:border-blue-500 sm:text-sm",
                     "placeholder": "Enter your full name",
                     "aria-label": "Full Name",
                 }
             ),
             "email": forms.EmailInput(
                 attrs={
-                    "class": "mt-1 block w-full py-2 px-4 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 sm:text-sm",
+                    "class": "mt-1 block w-full py-2 px-4 border border-gray-300 rounded-md "
+                    "focus:ring-blue-500 focus:border-blue-500 sm:text-sm",
                     "placeholder": "Enter your email",
                     "aria-label": "Email Address",
                 }
             ),
             "phone": forms.TextInput(
                 attrs={
-                    "class": "mt-1 block w-full py-2 px-4 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 sm:text-sm",
+                    "class": "mt-1 block w-full py-2 px-4 border border-gray-300 rounded-md "
+                    "focus:ring-blue-500 focus:border-blue-500 sm:text-sm",
                     "placeholder": "Enter your phone number",
                     "aria-label": "Phone Number",
                 }
@@ -87,41 +93,47 @@ class TourBookingForm(forms.ModelForm):
             "tour_date": forms.DateInput(
                 attrs={
                     "type": "date",
-                    "class": "mt-1 block w-full py-2 px-4 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 sm:text-sm",
+                    "class": "mt-1 block w-full py-2 px-4 border border-gray-300 rounded-md "
+                    "focus:ring-blue-500 focus:border-blue-500 sm:text-sm",
                     "aria-label": "Tour Date",
                 }
             ),
             "start_time": forms.TimeInput(
                 attrs={
                     "type": "time",
-                    "class": "mt-1 block w-full py-2 px-4 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 sm:text-sm",
+                    "class": "mt-1 block w-full py-2 px-4 border border-gray-300 rounded-md "
+                    "focus:ring-blue-500 focus:border-blue-500 sm:text-sm",
                     "aria-label": "Start Time",
                 }
             ),
             "number_of_travelers": forms.NumberInput(
                 attrs={
-                    "class": "mt-1 block w-full py-2 px-4 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 sm:text-sm",
+                    "class": "mt-1 block w-full py-2 px-4 border border-gray-300 rounded-md "
+                    "focus:ring-blue-500 focus:border-blue-500 sm:text-sm",
                     "placeholder": "Number of travelers",
                     "aria-label": "Number of Travelers",
                 }
             ),
             "duration_hours": forms.NumberInput(
                 attrs={
-                    "class": "mt-1 block w-full py-2 px-4 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 sm:text-sm",
+                    "class": "mt-1 block w-full py-2 px-4 border border-gray-300 rounded-md "
+                    "focus:ring-blue-500 focus:border-blue-500 sm:text-sm",
                     "placeholder": "Duration in hours",
                     "aria-label": "Tour Duration",
                 }
             ),
             "how_did_you_hear": forms.TextInput(
                 attrs={
-                    "class": "mt-1 block w-full py-2 px-4 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 sm:text-sm",
+                    "class": "mt-1 block w-full py-2 px-4 border border-gray-300 rounded-md "
+                    "focus:ring-blue-500 focus:border-blue-500 sm:text-sm",
                     "placeholder": "How did you hear about us?",
                     "aria-label": "Referral Source",
                 }
             ),
             "additional_notes": forms.Textarea(
                 attrs={
-                    "class": "mt-1 block w-full py-2 px-4 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 sm:text-sm",
+                    "class": "mt-1 block w-full py-2 px-4 border border-gray-300 rounded-md "
+                    "focus:ring-blue-500 focus:border-blue-500 sm:text-sm",
                     "rows": 4,
                     "placeholder": "Any special requests or notes?",
                     "aria-label": "Additional Notes",
