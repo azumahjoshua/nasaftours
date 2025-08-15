@@ -43,7 +43,7 @@ jobs:
 
       - name: Run pyflakes import checks
         run: |
-          pyflakes nasaftours tourghanaapp | grep -vE 'migrations|__pycache__|env|.venv'
+          pyflakes nasaftours tourghanaapp
 
       - name: Run Bandit security scan
         run: |
