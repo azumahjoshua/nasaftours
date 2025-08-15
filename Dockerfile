@@ -24,14 +24,11 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY package*.json /app/
 RUN npm install
 
-# Copy full app code (ensure static files are copied too)
+# Copy full app code
 COPY . /app/
 
-# Build static assets (input.css must exist at this point)
+# Build static assets
 RUN npm run build
-
-# Optionally collect Django static files
-# RUN python manage.py collectstatic --noinput
 
 # Stage 2: Runtime
 FROM python:3.13-slim
@@ -44,13 +41,15 @@ RUN apt-get update && apt-get install -y netcat-openbsd && \
 
 WORKDIR /app
 
-# Copy Python and Node build artifacts from builder stage
+# Copy build artifacts from builder
 COPY --from=builder /usr/local/lib/python3.13/site-packages/ /usr/local/lib/python3.13/site-packages/
 COPY --from=builder /usr/local/bin/ /usr/local/bin/
 COPY --from=builder /app /app
 
-# Prepare staticfiles directory for Django
+# Prepare staticfiles directory
 RUN mkdir -p /app/staticfiles && chown -R appuser /app/staticfiles
+
+RUN mkdir -p /app/logs && chown -R appuser /app/logs
 
 ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1
