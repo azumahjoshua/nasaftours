@@ -95,9 +95,10 @@ jobs:
       - name: Prepare production compose file
         run: |
           mkdir -p deployment
-          sed -e "s|build: .|image: ${{ env.DOCKER_HUB_REPO }}:${{ env.IMAGE_TAG }}|" \
-              -e "s/container_name: nasaftours_web//" \
-              compose.yml > deployment/docker-compose.prod.yml
+           sed -e "s|build: .|image: ${DOCKER_HUB_REPO}:${IMAGE_TAG}|" \
+                -e "s|container_name: nasaftours_web||" \
+                -e "s|\${IMAGE_TAG}|${IMAGE_TAG}|g" compose.yml > deployment/docker-compose.prod.yml
+
 
       - name: Setup SSH
         run: |
