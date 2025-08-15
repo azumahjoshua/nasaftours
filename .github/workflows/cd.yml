@@ -60,9 +60,9 @@ jobs:
           AZURE_CUSTOM_DOMAIN=${{ secrets.AZURE_CUSTOM_DOMAIN }}
           EOF
 
-          # Ensure logs & staticfiles directories exist
-          mkdir -p /app/logs /app/staticfiles
-          chown -R $USER:$USER /app/logs /app/staticfiles
+          # Ensure logs & staticfiles directories exist for container user
+          sudo mkdir -p /app/logs /app/staticfiles
+          sudo chown -R 1000:1000 /app/logs /app/staticfiles
           EOT
 
       - name: Copy compose file & deploy
@@ -111,6 +111,8 @@ jobs:
           sudo docker compose -f docker-compose.prod.yml restart django-web
           sudo docker image prune -f
           EOT
+
+
 
 # name: Django CD Pipeline
 # on:
