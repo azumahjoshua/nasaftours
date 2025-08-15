@@ -60,7 +60,6 @@ jobs:
           install: true
           driver: docker-container
 
-      # Build locally for testing (load into runner's Docker)
       - name: Build Docker image (local for tests)
         uses: docker/build-push-action@v4.1.1
         with:
@@ -70,14 +69,12 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
-  
       - name: Login to Docker Hub
         uses: docker/login-action@v2.2.0
         with:
           username: ${{ secrets.DOCKER_HUB_USERNAME }}
           password: ${{ secrets.DOCKER_HUB_TOKEN }}
 
-      # Push only after tests pass
       - name: Push Docker image
         uses: docker/build-push-action@v4.1.1
         with:
@@ -99,6 +96,102 @@ jobs:
           vuln-type: 'os,library'
           severity: 'CRITICAL,HIGH'
 
+  deploy-to-azure:
+    needs: build-test-push
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4.1.1
+
+      - name: Prepare production compose file
+        run: |
+          mkdir -p deployment
+          sed -e "s|build: .|image: ${{ env.DOCKER_HUB_REPO }}:${{ github.sha }}|" \
+              -e "s/container_name: nasaftours_web//" \
+              compose.yml > deployment/docker-compose.prod.yml
+
+      - name: Setup SSH
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.AZURE_VM_SSH_KEY }}" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          ssh-keyscan -H ${{ secrets.AZURE_VM_IP }} >> ~/.ssh/known_hosts
+          ssh -o StrictHostKeyChecking=no ${{ secrets.AZURE_VM_USER }}@${{ secrets.AZURE_VM_IP }} "echo 'SSH connection test successful'"
+
+      - name: Copy compose file to Azure VM
+        run: |
+          ssh ${{ secrets.AZURE_VM_USER }}@${{ secrets.AZURE_VM_IP }} "mkdir -p ~/nasaftours"
+          scp -o StrictHostKeyChecking=no \
+            deployment/docker-compose.prod.yml \
+            ${{ secrets.AZURE_VM_USER }}@${{ secrets.AZURE_VM_IP }}:~/nasaftours/
+
+      - name: Deploy on Azure VM
+        run: |
+          ssh -o StrictHostKeyChecking=no \
+            ${{ secrets.AZURE_VM_USER }}@${{ secrets.AZURE_VM_IP }} << 'EOF'
+            cd ~/nasaftours
+            CURRENT_TAG=$(docker-compose -f docker-compose.prod.yml config | grep image | awk '{print $2}' | cut -d':' -f2 || echo "none")
+            echo $CURRENT_TAG > previous_tag.txt
+            
+            docker compose -f docker-compose.prod.yml down
+            
+            docker compose -f docker-compose.prod.yml pull db
+            docker compose -f docker-compose.prod.yml pull || { docker compose -f docker-compose.prod.yml logs; exit 1; }
+            
+            DJANGO_SECRET_KEY=${{ secrets.DJANGO_SECRET_KEY }} \
+            DJANGO_LOGLEVEL=info \
+            DJANGO_ALLOWED_HOSTS=${{ secrets.AZURE_VM_IP }} \
+            EMAIL_HOST=smtp.gmail.com \
+            EMAIL_PORT=587 \
+            EMAIL_USE_TLS=True \
+            EMAIL_HOST_USER=${{ secrets.EMAIL_HOST_USER }} \
+            EMAIL_HOST_PASSWORD=${{ secrets.EMAIL_HOST_PASSWORD }} \
+            DATABASE_ENGINE=postgresql \
+            DATABASE_NAME=${{ secrets.DATABASE_NAME }} \
+            DATABASE_USERNAME=${{ secrets.DATABASE_USERNAME }} \
+            DATABASE_PASSWORD=${{ secrets.DATABASE_PASSWORD }} \
+            DATABASE_HOST=db \
+            DATABASE_PORT=5432 \
+            AZURE_ACCOUNT_NAME=${{ secrets.AZURE_ACCOUNT_NAME }} \
+            AZURE_ACCOUNT_KEY=${{ secrets.AZURE_ACCOUNT_KEY }} \
+            AZURE_MEDIA_CONTAINER=media \
+            AZURE_CUSTOM_DOMAIN=${{ secrets.AZURE_CUSTOM_DOMAIN }} \
+            docker compose -f docker-compose.prod.yml up -d || { docker compose -f docker-compose.prod.yml logs; exit 1; }
+            
+            docker compose -f docker-compose.prod.yml exec django-web python manage.py migrate
+            docker compose -f docker-compose.prod.yml exec django-web python manage.py collectstatic --noinput
+            
+            if ! curl --fail http://localhost:8000/health; then
+              echo "Deployment failed, rolling back"
+              if [ -f previous_tag.txt ] && [ "$CURRENT_TAG" != "none" ]; then
+                sed -i "s/:${{ github.sha }}/:$CURRENT_TAG/" docker-compose.prod.yml
+                docker compose -f docker-compose.prod.yml up -d
+              fi
+              exit 1
+            fi
+            
+            docker compose -f docker-compose.prod.yml restart django-web
+            
+            docker image prune -f
+          EOF
+
+  # notify:
+  #   needs: deploy-to-azure
+  #   if: always()
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - name: Notify via Email
+  #       uses: dawson-org/email-action@v1.0.0
+  #       with:
+  #         smtp_host: smtp.gmail.com
+  #         smtp_port: 587
+  #         smtp_user: ${{ secrets.EMAIL_HOST_USER }}
+  #         smtp_password: ${{ secrets.EMAIL_HOST_PASSWORD }}
+  #         to: ${{ secrets.NOTIFICATION_EMAIL }}
+  #         from: ${{ secrets.EMAIL_HOST_USER }}
+  #         subject: "Deployment ${{ needs.deploy-to-azure.result }} for nasaftours"
+  #         body: "Deployment ${{ needs.deploy-to-azure.result }} for commit ${{ github.sha }} on nasaftours at $(date -u +'%Y-%m-%d %H:%M:%S UTC')"
+
 # name: Django CI/CD Pipeline (Azure VM + Docker Hub)
 
 # on:
@@ -106,8 +199,8 @@ jobs:
 #     branches: [main]
 
 # permissions:
-#   contents: read  # Restrict to read-only for repo contents
-#   packages: write  # Allow pushing to container registry
+#   contents: read
+#   packages: write
 
 # env:
 #   DOCKER_HUB_REPO: joshua192/nasaftours
@@ -124,7 +217,7 @@ jobs:
 #       - name: Set up Python
 #         uses: actions/setup-python@v4.7.0
 #         with:
-#           python-version: '3.10'  # Stable for Django; change to 3.13 if tested
+#           python-version: '3.10'
 
 #       - name: Install dependencies
 #         run: |
@@ -161,120 +254,43 @@ jobs:
 #           install: true
 #           driver: docker-container
 
-#       - name: Build Docker image
+#       # Build locally for testing (load into runner's Docker)
+#       - name: Build Docker image (local for tests)
 #         uses: docker/build-push-action@v4.1.1
 #         with:
 #           context: .
-#           push: false
-#           tags: ${{ env.DOCKER_HUB_REPO }}/web:${{ env.IMAGE_TAG }}
+#           load: true
+#           tags: ${{ env.DOCKER_HUB_REPO }}:${{ env.IMAGE_TAG }}
 #           cache-from: type=gha
 #           cache-to: type=gha,mode=max
 
-#       - name: Run Django tests in container
-#         run: |
-#           docker run --rm \
-#             -e DJANGO_SETTINGS_MODULE=nasaftours.settings \
-#             ${{ env.DOCKER_HUB_REPO }}/web:${{ env.IMAGE_TAG }} \
-#             python manage.py test --noinput
-
+  
 #       - name: Login to Docker Hub
 #         uses: docker/login-action@v2.2.0
 #         with:
 #           username: ${{ secrets.DOCKER_HUB_USERNAME }}
 #           password: ${{ secrets.DOCKER_HUB_TOKEN }}
 
+#       # Push only after tests pass
 #       - name: Push Docker image
 #         uses: docker/build-push-action@v4.1.1
 #         with:
 #           context: .
 #           push: true
 #           tags: |
-#             ${{ env.DOCKER_HUB_REPO }}/web:latest
-#             ${{ env.DOCKER_HUB_REPO }}/web:${{ env.IMAGE_TAG }}
+#             ${{ env.DOCKER_HUB_REPO }}:latest
+#             ${{ env.DOCKER_HUB_REPO }}:${{ env.IMAGE_TAG }}
 #           cache-from: type=gha
 #           cache-to: type=gha,mode=max
 
 #       - name: Scan Docker image for vulnerabilities
 #         uses: aquasecurity/trivy-action@0.28.0
 #         with:
-#           image-ref: ${{ env.DOCKER_HUB_REPO }}/web:${{ env.IMAGE_TAG }}
+#           image-ref: ${{ env.DOCKER_HUB_REPO }}:${{ env.IMAGE_TAG }}
 #           format: 'table'
-#           exit-code: '1'  # Fail on critical/high vulnerabilities
+#           exit-code: '1'
 #           ignore-unfixed: true
 #           vuln-type: 'os,library'
 #           severity: 'CRITICAL,HIGH'
-
-
-# # name: Django CI/CD Pipeline (Azure VM + Docker Hub)
-
-# # on:
-# #   push:
-# #     branches: [main]
-
-# # permissions:
-# #   contents: read  # Restrict to read-only for repo contents
-# #   packages: write  # Allow pushing to container registry if needed
-
-# # env:
-# #   DOCKER_HUB_REPO: joshua192/nasaftours
-# #   COMPOSE_PROJECT_NAME: nasaftours-prod
-
-# # jobs:
-# #   build-test-push:
-# #     runs-on: ubuntu-latest
-# #     steps:
-# #       - name: Checkout code
-# #         uses: actions/checkout@v4.1.1  
-
-# #       - name: Set up Python
-# #         uses: actions/setup-python@v4.7.0
-# #         with:
-# #           python-version: '3.10'
-
-# #       - name: Install dependencies
-# #         run: |
-# #           python -m pip install --upgrade pip
-# #           pip install -r requirements.txt
-
-# #       - name: Lint code
-# #         run: |
-# #           pip install black flake8 bandit
-# #           black --check .
-# #           flake8 .
-# #           bandit -r . -x tests  # Scan for security issues, exclude tests
-
-# #       - name: Scan Python dependencies for vulnerabilities
-# #         run: |
-# #           pip install pip-audit
-# #           pip-audit --requirement requirements.txt --strict
-
-# #       - name: Run tests
-# #         run: |
-# #           python manage.py test --noinput
-
-# #       - name: Login to Docker Hub
-# #         uses: docker/login-action@v2.2.0
-# #         with:
-# #           username: ${{ secrets.DOCKER_HUB_USERNAME }}
-# #           password: ${{ secrets.DOCKER_HUB_TOKEN }}
-
-# #       - name: Build and push Django image
-# #         uses: docker/build-push-action@v4.1.1
-# #         with:
-# #           context: .
-# #           push: true
-# #           tags: |
-# #             ${{ env.DOCKER_HUB_REPO }}/web:latest
-# #             ${{ env.DOCKER_HUB_REPO }}/web:${{ github.sha }}
-# #           cache-from: type=gha
-# #           cache-to: type=gha,mode=max
-
-# #       - name: Scan Docker image for vulnerabilities
-# #         uses: aquasecurity/trivy-action@0.28.0
-# #         with:
-# #           image-ref: ${{ env.DOCKER_HUB_REPO }}/web:${{ github.sha }}
-# #           format: 'table'
-# #           exit-code: '1'  # Fail on critical/high vulnerabilities
-# #           ignore-unfixed: true
-# #           vuln-type: 'os,library'
-# #           severity: 'CRITICAL,HIGH'
+  
+  
