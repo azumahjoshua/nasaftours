@@ -1,12 +1,15 @@
 # Stage 1: Builder
 FROM python:3.13-slim AS builder
 
+# Create app directory
+RUN mkdir /app
 WORKDIR /app
 
+# Python environment variables
 ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1
 
-# Install OS dependencies + Node
+# Install OS dependencies + Node.js
 RUN apt-get update && apt-get install -y curl build-essential \
  && curl -fsSL https://deb.nodesource.com/setup_18.x | bash - \
  && apt-get install -y nodejs \
@@ -30,20 +33,21 @@ RUN npm run build
 # Stage 2: Runtime
 FROM python:3.13-slim
 
-WORKDIR /app
-
 # Add netcat and app user
 RUN apt-get update && apt-get install -y netcat-openbsd && \
     useradd -m -r appuser && \
-    mkdir /app && chown -R appuser /app
+    mkdir -p /app && mkdir -p /app/logs && mkdir -p /app/staticfiles && \
+    chown -R appuser /app
 
-# Copy build artifacts from builder
+WORKDIR /app
+
+# Copy Python and Node build artifacts from builder
 COPY --from=builder /usr/local/lib/python3.13/site-packages/ /usr/local/lib/python3.13/site-packages/
 COPY --from=builder /usr/local/bin/ /usr/local/bin/
 COPY --from=builder /app /app
 
-# Prepare directories
-RUN mkdir -p /app/staticfiles /app/logs && chown -R appuser:appuser /app/staticfiles /app/logs
+# Ensure directories exist for Django logging and static files
+RUN mkdir -p /app/logs /app/staticfiles && chown -R appuser /app/logs /app/staticfiles
 
 ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1
@@ -55,6 +59,7 @@ ENTRYPOINT ["/app/entrypoint.sh"]
 USER appuser
 
 EXPOSE 8000
+
 
 
 # # Stage 1: Builder
