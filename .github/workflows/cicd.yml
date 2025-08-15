@@ -33,7 +33,7 @@ jobs:
 
       - name: Check Black formatting
         run: |
-          black --check . --verbose  # Verbose for debugging
+          black --check nasaftours tourghanaapp --verbose --exclude "(migrations|env|.venv|__pycache__)"
 
       - name: Run pycodestyle linting
         run: |

@@ -50,7 +50,9 @@ class Destination(models.Model):
         storage=AzureStorage(),
         help_text="Featured image for this destination",
     )
-    is_active = models.BooleanField(default=True, help_text="Toggle destination visibility on the website")
+    is_active = models.BooleanField(
+        default=True, help_text="Toggle destination visibility on the website"
+    )
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -84,7 +86,9 @@ class BlogPost(models.Model):
     title = models.CharField(max_length=200)
     slug = models.SlugField(unique=True, blank=True, max_length=200)
     content = RichTextUploadingField()  # This allows uploads
-    image = models.ImageField(upload_to="blog_images/", null=True, blank=True, storage=AzureStorage())
+    image = models.ImageField(
+        upload_to="blog_images/", null=True, blank=True, storage=AzureStorage()
+    )
     created_at = models.DateTimeField(auto_now_add=True)
     is_featured = models.BooleanField(default=False)
 
@@ -180,8 +184,12 @@ class TourBooking(models.Model):
     phone = models.CharField(max_length=20, blank=True, null=True)
     tour_date = models.DateField()
     start_time = models.TimeField()
-    number_of_travelers = models.PositiveIntegerField(validators=[MinValueValidator(1), MaxValueValidator(50)])
-    duration_hours = models.PositiveIntegerField(validators=[MinValueValidator(1), MaxValueValidator(12)])
+    number_of_travelers = models.PositiveIntegerField(
+        validators=[MinValueValidator(1), MaxValueValidator(50)]
+    )
+    duration_hours = models.PositiveIntegerField(
+        validators=[MinValueValidator(1), MaxValueValidator(12)]
+    )
     interests = models.ManyToManyField(Interest, blank=True)
     extra_bag_options = models.ManyToManyField(ExtraBagOption, blank=True)
     how_did_you_hear = models.TextField(blank=True, null=True)

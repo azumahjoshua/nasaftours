@@ -49,7 +49,9 @@ class Migration(migrations.Migration):
                 ),
                 (
                     "description",
-                    ckeditor.fields.RichTextField(help_text="Detailed description of the destination"),
+                    ckeditor.fields.RichTextField(
+                        help_text="Detailed description of the destination"
+                    ),
                 ),
                 (
                     "image",

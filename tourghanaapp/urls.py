@@ -23,6 +23,8 @@ urlpatterns = [
     ),
     path("explore/gallery/", views.tour_gallery, name="tour_gallery"),
     path("destinations/", views.destination_list, name="destination-list"),
-    path("destinations/<slug:slug>/", views.destination_detail, name="destination-detail"),
+    path(
+        "destinations/<slug:slug>/", views.destination_detail, name="destination-detail"
+    ),
     # path('explore/destination/', views.destination, name='destination'),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
