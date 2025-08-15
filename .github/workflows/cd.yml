@@ -10,6 +10,8 @@ jobs:
   deploy-to-azure:
     if: ${{ github.event.workflow_run.conclusion == 'success' }}
     runs-on: ubuntu-latest
+    env:
+      DOCKER_HUB_REPO: joshua192/nasaftours
     steps:
       - name: Checkout code
         uses: actions/checkout@v4.1.1
@@ -40,7 +42,6 @@ jobs:
           sudo mkdir -p $APP_DIR
           sudo chown -R $USER:$USER $APP_DIR
 
-          # Create .env
           tee $APP_DIR/.env > /dev/null <<EOF
           DATABASE_NAME=${{ secrets.DATABASE_NAME }}
           DATABASE_USERNAME=${{ secrets.DATABASE_USERNAME }}
@@ -60,7 +61,6 @@ jobs:
           AZURE_CUSTOM_DOMAIN=${{ secrets.AZURE_CUSTOM_DOMAIN }}
           EOF
 
-          # Ensure logs & staticfiles directories exist for container user
           sudo mkdir -p /app/logs /app/staticfiles
           sudo chown -R 1000:1000 /app/logs /app/staticfiles
           EOT
@@ -102,7 +102,7 @@ jobs:
           if ! curl --fail http://localhost:8000/health; then
               echo "Deployment failed, rolling back..."
               if [ -f previous_tag.txt ] && [ "$CURRENT_TAG" != "none" ]; then
-                  sudo sed -i "s/:${{ github.sha }}/:$CURRENT_TAG/" docker-compose.prod.yml
+                  sudo sed -i "s/:${{ env.IMAGE_TAG }}/:$CURRENT_TAG/" docker-compose.prod.yml
                   sudo docker compose -f docker-compose.prod.yml up -d
               fi
               exit 1
@@ -111,7 +111,6 @@ jobs:
           sudo docker compose -f docker-compose.prod.yml restart django-web
           sudo docker image prune -f
           EOT
-
 
 
 # name: Django CD Pipeline
