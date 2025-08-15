@@ -1,15 +1,12 @@
 # Stage 1: Builder
 FROM python:3.13-slim AS builder
 
-# Create app directory
-RUN mkdir /app
 WORKDIR /app
 
-# Python env variables
 ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1
 
-# Install OS deps for Python + Node
+# Install OS dependencies + Node
 RUN apt-get update && apt-get install -y curl build-essential \
  && curl -fsSL https://deb.nodesource.com/setup_18.x | bash - \
  && apt-get install -y nodejs \
@@ -33,33 +30,32 @@ RUN npm run build
 # Stage 2: Runtime
 FROM python:3.13-slim
 
+WORKDIR /app
+
 # Add netcat and app user
 RUN apt-get update && apt-get install -y netcat-openbsd && \
     useradd -m -r appuser && \
-    mkdir /app && \
-    chown -R appuser /app
-
-WORKDIR /app
+    mkdir /app && chown -R appuser /app
 
 # Copy build artifacts from builder
 COPY --from=builder /usr/local/lib/python3.13/site-packages/ /usr/local/lib/python3.13/site-packages/
 COPY --from=builder /usr/local/bin/ /usr/local/bin/
 COPY --from=builder /app /app
 
-# Prepare staticfiles directory
-RUN mkdir -p /app/staticfiles && chown -R appuser /app/staticfiles
-
-RUN mkdir -p /app/logs && chown -R appuser /app/logs
+# Prepare directories
+RUN mkdir -p /app/staticfiles /app/logs && chown -R appuser:appuser /app/staticfiles /app/logs
 
 ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1
 
+# Entrypoint
 COPY entrypoint.sh /app/
 ENTRYPOINT ["/app/entrypoint.sh"]
 
 USER appuser
 
 EXPOSE 8000
+
 
 # # Stage 1: Builder
 # FROM python:3.13-slim AS builder

@@ -1,4 +1,5 @@
 name: Django CD Pipeline
+
 on:
   workflow_run:
     workflows: ["Django CI Pipeline"]
@@ -30,35 +31,38 @@ jobs:
           chmod 600 ~/.ssh/id_rsa
           ssh-keyscan -H ${{ secrets.AZURE_VM_IP }} >> ~/.ssh/known_hosts
 
-      - name: Setup .env on Azure VM
+      - name: Setup .env & required directories on VM
         run: |
           ssh -o StrictHostKeyChecking=no ${{ secrets.AZURE_VM_USER }}@${{ secrets.AZURE_VM_IP }} << 'EOT'
           set -e
 
-          ENV_DIR=~/nasaftours
-          sudo mkdir -p $ENV_DIR
-          sudo chown -R ${{ secrets.AZURE_VM_USER }}:${{ secrets.AZURE_VM_USER }} $ENV_DIR
+          APP_DIR=~/nasaftours
+          sudo mkdir -p $APP_DIR
+          sudo chown -R $USER:$USER $APP_DIR
 
-          tee $ENV_DIR/.env > /dev/null <<EOF
-                DATABASE_NAME=${{ secrets.DATABASE_NAME }}
-                DATABASE_USERNAME=${{ secrets.DATABASE_USERNAME }}
-                DATABASE_PASSWORD=${{ secrets.DATABASE_PASSWORD }}
-                DATABASE_HOST=db
-                DATABASE_PORT=5432
-                DATABASE_ENGINE=postgresql
-                DJANGO_SECRET_KEY=${{ secrets.DJANGO_SECRET_KEY }}
-                DJANGO_LOGLEVEL=info
-                DJANGO_ALLOWED_HOSTS=${{ secrets.ALLOWED_HOSTS }}
-                DEBUG=False
-                EMAIL_HOST_USER=${{ secrets.EMAIL_HOST_USER }}
-                EMAIL_HOST_PASSWORD=${{ secrets.EMAIL_HOST_PASSWORD }}
-                AZURE_ACCOUNT_NAME=${{ secrets.AZURE_ACCOUNT_NAME }}
-                AZURE_ACCOUNT_KEY=${{ secrets.AZURE_ACCOUNT_KEY }}
-                AZURE_MEDIA_CONTAINER=media
-                AZURE_CUSTOM_DOMAIN=${{ secrets.AZURE_CUSTOM_DOMAIN }}
-                EOF
+          # Create .env
+          tee $APP_DIR/.env > /dev/null <<EOF
+          DATABASE_NAME=${{ secrets.DATABASE_NAME }}
+          DATABASE_USERNAME=${{ secrets.DATABASE_USERNAME }}
+          DATABASE_PASSWORD=${{ secrets.DATABASE_PASSWORD }}
+          DATABASE_HOST=db
+          DATABASE_PORT=5432
+          DATABASE_ENGINE=postgresql
+          DJANGO_SECRET_KEY=${{ secrets.DJANGO_SECRET_KEY }}
+          DJANGO_LOGLEVEL=info
+          DJANGO_ALLOWED_HOSTS=${{ secrets.ALLOWED_HOSTS }}
+          DEBUG=False
+          EMAIL_HOST_USER=${{ secrets.EMAIL_HOST_USER }}
+          EMAIL_HOST_PASSWORD=${{ secrets.EMAIL_HOST_PASSWORD }}
+          AZURE_ACCOUNT_NAME=${{ secrets.AZURE_ACCOUNT_NAME }}
+          AZURE_ACCOUNT_KEY=${{ secrets.AZURE_ACCOUNT_KEY }}
+          AZURE_MEDIA_CONTAINER=media
+          AZURE_CUSTOM_DOMAIN=${{ secrets.AZURE_CUSTOM_DOMAIN }}
+          EOF
 
-          sudo chmod 600 $ENV_DIR/.env
+          # Ensure logs & staticfiles directories exist
+          mkdir -p /app/logs /app/staticfiles
+          chown -R $USER:$USER /app/logs /app/staticfiles
           EOT
 
       - name: Copy compose file & deploy
@@ -70,11 +74,8 @@ jobs:
           set -e
 
           cd ~/nasaftours
-          # Create required directories
-          sudo mkdir -p /app/logs
-          sudo chown -R ${{ secrets.AZURE_VM_USER }}:${{ secrets.AZURE_VM_USER }} /app/logs
 
-          # Backup current tag
+          # Backup current image tag
           CURRENT_TAG=$(sudo docker compose -f docker-compose.prod.yml config | grep image | awk '{print $2}' | cut -d':' -f2 || echo "none")
           echo $CURRENT_TAG > previous_tag.txt
 
@@ -110,3 +111,116 @@ jobs:
           sudo docker compose -f docker-compose.prod.yml restart django-web
           sudo docker image prune -f
           EOT
+
+# name: Django CD Pipeline
+# on:
+#   workflow_run:
+#     workflows: ["Django CI Pipeline"]
+#     types:
+#       - completed
+
+# jobs:
+#   deploy-to-azure:
+#     if: ${{ github.event.workflow_run.conclusion == 'success' }}
+#     runs-on: ubuntu-latest
+#     steps:
+#       - name: Checkout code
+#         uses: actions/checkout@v4.1.1
+
+#       - name: Set IMAGE_TAG from CI
+#         run: echo "IMAGE_TAG=${{ github.event.workflow_run.outputs.IMAGE_TAG }}" >> $GITHUB_ENV
+
+#       - name: Prepare production compose file
+#         run: |
+#           mkdir -p deployment
+#           sed -e "s|build: .|image: ${{ env.DOCKER_HUB_REPO }}:${{ env.IMAGE_TAG }}|" \
+#               -e "s/container_name: nasaftours_web//" \
+#               compose.yml > deployment/docker-compose.prod.yml
+
+#       - name: Setup SSH
+#         run: |
+#           mkdir -p ~/.ssh
+#           echo "${{ secrets.AZURE_VM_SSH_KEY }}" > ~/.ssh/id_rsa
+#           chmod 600 ~/.ssh/id_rsa
+#           ssh-keyscan -H ${{ secrets.AZURE_VM_IP }} >> ~/.ssh/known_hosts
+
+#       - name: Setup .env on Azure VM
+#         run: |
+#           ssh -o StrictHostKeyChecking=no ${{ secrets.AZURE_VM_USER }}@${{ secrets.AZURE_VM_IP }} << 'EOT'
+#           set -e
+
+#           ENV_DIR=~/nasaftours
+#           sudo mkdir -p $ENV_DIR
+#           sudo chown -R ${{ secrets.AZURE_VM_USER }}:${{ secrets.AZURE_VM_USER }} $ENV_DIR
+
+#           tee $ENV_DIR/.env > /dev/null <<EOF
+#                 DATABASE_NAME=${{ secrets.DATABASE_NAME }}
+#                 DATABASE_USERNAME=${{ secrets.DATABASE_USERNAME }}
+#                 DATABASE_PASSWORD=${{ secrets.DATABASE_PASSWORD }}
+#                 DATABASE_HOST=db
+#                 DATABASE_PORT=5432
+#                 DATABASE_ENGINE=postgresql
+#                 DJANGO_SECRET_KEY=${{ secrets.DJANGO_SECRET_KEY }}
+#                 DJANGO_LOGLEVEL=info
+#                 DJANGO_ALLOWED_HOSTS=${{ secrets.ALLOWED_HOSTS }}
+#                 DEBUG=False
+#                 EMAIL_HOST_USER=${{ secrets.EMAIL_HOST_USER }}
+#                 EMAIL_HOST_PASSWORD=${{ secrets.EMAIL_HOST_PASSWORD }}
+#                 AZURE_ACCOUNT_NAME=${{ secrets.AZURE_ACCOUNT_NAME }}
+#                 AZURE_ACCOUNT_KEY=${{ secrets.AZURE_ACCOUNT_KEY }}
+#                 AZURE_MEDIA_CONTAINER=media
+#                 AZURE_CUSTOM_DOMAIN=${{ secrets.AZURE_CUSTOM_DOMAIN }}
+#                 EOF
+
+#           sudo chmod 600 $ENV_DIR/.env
+#           EOT
+
+#       - name: Copy compose file & deploy
+#         run: |
+#           scp -o StrictHostKeyChecking=no deployment/docker-compose.prod.yml \
+#               ${{ secrets.AZURE_VM_USER }}@${{ secrets.AZURE_VM_IP }}:~/nasaftours/
+
+#           ssh -o StrictHostKeyChecking=no ${{ secrets.AZURE_VM_USER }}@${{ secrets.AZURE_VM_IP }} << 'EOT'
+#           set -e
+
+#           cd ~/nasaftours
+#           # Create required directories
+#           sudo mkdir -p /app/logs
+#           sudo chown -R ${{ secrets.AZURE_VM_USER }}:${{ secrets.AZURE_VM_USER }} /app/logs
+
+#           # Backup current tag
+#           CURRENT_TAG=$(sudo docker compose -f docker-compose.prod.yml config | grep image | awk '{print $2}' | cut -d':' -f2 || echo "none")
+#           echo $CURRENT_TAG > previous_tag.txt
+
+#           # Stop old containers
+#           sudo docker compose -f docker-compose.prod.yml down
+
+#           # Pull new images
+#           sudo docker compose -f docker-compose.prod.yml pull
+
+#           # Start services
+#           sudo docker compose -f docker-compose.prod.yml up -d
+
+#           # Wait for Django container to be healthy
+#           for i in {1..10}; do
+#               if curl --fail http://localhost:8000/health; then break; fi
+#               sleep 5
+#           done
+
+#           # Run migrations & collect static
+#           sudo docker compose -f docker-compose.prod.yml exec django-web python manage.py migrate
+#           sudo docker compose -f docker-compose.prod.yml exec django-web python manage.py collectstatic --noinput
+
+#           # Rollback if health check fails
+#           if ! curl --fail http://localhost:8000/health; then
+#               echo "Deployment failed, rolling back..."
+#               if [ -f previous_tag.txt ] && [ "$CURRENT_TAG" != "none" ]; then
+#                   sudo sed -i "s/:${{ github.sha }}/:$CURRENT_TAG/" docker-compose.prod.yml
+#                   sudo docker compose -f docker-compose.prod.yml up -d
+#               fi
+#               exit 1
+#           fi
+
+#           sudo docker compose -f docker-compose.prod.yml restart django-web
+#           sudo docker image prune -f
+#           EOT

@@ -8,6 +8,13 @@ while [ $? -ne 0 ]; do
   nc -z $DATABASE_HOST $DATABASE_PORT
 done
 
+set -e
+
+# Ensure logs directory exists and is writable
+mkdir -p /app/logs
+chown -R appuser:appuser /app/logs
+
+
 # Run migrations and start app
 python manage.py migrate
 python manage.py collectstatic --noinput
