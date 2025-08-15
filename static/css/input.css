@@ -1,0 +1,12 @@
+@theme {
+  --color-brand: #FFCC00;
+  --font-size-heading: 2rem;
+  --spacing-72: 18rem;
+}
+
+
+@import "tailwindcss";
+@import "flowbite/src/themes/default";
+
+@plugin "flowbite/plugin";
+
