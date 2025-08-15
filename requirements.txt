@@ -63,3 +63,4 @@ urllib3==2.5.0
 webencodings==0.5.1
 whitenoise==6.9.0
 
+django-cors-headers==4.7.0
