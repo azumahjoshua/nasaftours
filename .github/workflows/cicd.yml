@@ -5,6 +5,10 @@ on:
     branches:
       - main
 
+permissions:
+  contents: read
+  packages: write
+
 env:
   DOCKER_HUB_REPO: joshua192/nasaftours
 
@@ -13,36 +17,70 @@ jobs:
     name: Build, Test, and Push Docker Image
     runs-on: ubuntu-latest
     outputs:
-      image_tag: ${{ steps.meta.outputs.image_tag }}
+      image_tag: ${{ steps.set-tag.outputs.image_tag }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v4.1.1
 
       - name: Set up Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v4.7.0
         with:
-          python-version: "3.11"
+          python-version: '3.10'
 
       - name: Install dependencies
-        run: pip install -r requirements.txt
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install black pycodestyle pyflakes bandit pip-audit
 
-      - name: Run tests
-        run: python manage.py test
+      - name: Check Black formatting
+        run: black --check nasaftours tourghanaapp --verbose --exclude "(migrations|env|.venv|__pycache__)"
 
-      - name: Log in to Docker Hub
-        uses: docker/login-action@v2
-        with:
-          username: ${{ secrets.DOCKER_HUB_USERNAME }}
-          password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
+      - name: Run pycodestyle linting
+        run: pycodestyle nasaftours tourghanaapp --max-line-length=120 --exclude=.venv,env,migrations,__pycache__,static,templates
+
+      - name: Run pyflakes import checks
+        run: pyflakes nasaftours tourghanaapp
+
+      - name: Run Bandit security scan
+        run: bandit -r nasaftours tourghanaapp -x tests,migrations,__pycache__,env,.venv
+
+      - name: Scan Python dependencies
+        run: pip-audit --requirement requirements.txt --strict
 
       - name: Set IMAGE_TAG
-        id: meta
+        id: set-tag
         run: echo "image_tag=$(date +'%Y%m%d%H%M%S')" >> $GITHUB_OUTPUT
 
-      - name: Build and Push Docker Image
-        run: |
-          docker build -t ${{ env.DOCKER_HUB_REPO }}:${{ steps.meta.outputs.image_tag }} .
-          docker push ${{ env.DOCKER_HUB_REPO }}:${{ steps.meta.outputs.image_tag }}
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Login to Docker Hub
+        uses: docker/login-action@v2.2.0
+        with:
+          username: ${{ secrets.DOCKER_HUB_USERNAME }}
+          password: ${{ secrets.DOCKER_HUB_TOKEN }}
+
+      - name: Build and Push Docker image
+        uses: docker/build-push-action@v4.1.1
+        with:
+          context: .
+          push: true
+          tags: |
+            ${{ env.DOCKER_HUB_REPO }}:latest
+            ${{ env.DOCKER_HUB_REPO }}:${{ steps.set-tag.outputs.image_tag }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Scan Docker image for vulnerabilities
+        uses: aquasecurity/trivy-action@0.28.0
+        with:
+          image-ref: ${{ env.DOCKER_HUB_REPO }}:${{ steps.set-tag.outputs.image_tag }}
+          format: 'table'
+          exit-code: '1'
+          ignore-unfixed: true
+          vuln-type: 'os,library'
+          severity: 'CRITICAL,HIGH'
 
   deploy-to-azure:
     name: Deploy to Azure VM
