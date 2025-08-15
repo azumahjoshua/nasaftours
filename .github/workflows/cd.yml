@@ -70,6 +70,9 @@ jobs:
           set -e
 
           cd ~/nasaftours
+          # Create required directories
+          sudo mkdir -p /app/logs
+          sudo chown -R ${{ secrets.AZURE_VM_USER }}:${{ secrets.AZURE_VM_USER }} /app/logs
 
           # Backup current tag
           CURRENT_TAG=$(sudo docker compose -f docker-compose.prod.yml config | grep image | awk '{print $2}' | cut -d':' -f2 || echo "none")
