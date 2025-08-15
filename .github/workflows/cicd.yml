@@ -106,7 +106,6 @@ jobs:
       - name: Prepare production compose file
         run: |
           mkdir -p deployment
-          # Create production compose file without build context and container_name
           sed -e "s|build: .|image: ${{ env.DOCKER_HUB_REPO }}:${{ github.sha }}|" \
               -e "s/container_name: nasaftours_web//" \
               compose.yml > deployment/docker-compose.prod.yml
@@ -117,12 +116,12 @@ jobs:
           echo "${{ secrets.AZURE_VM_SSH_KEY }}" > ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa
           ssh-keyscan -H ${{ secrets.AZURE_VM_IP }} >> ~/.ssh/known_hosts
-          # Test SSH connection
-          ssh -o StrictHostKeyChecking=no ${{ secrets.AZURE_VM_USER }}@${{ secrets.AZURE_VM_IP }} "echo 'SSH connection test successful'"
+          
           # Create .env file on VM
-          ssh ${{ secrets.AZURE_VM_USER }}@${{ secrets.AZURE_VM_IP }} << 'EOF'
-          cd ~/nasaftours || mkdir -p ~/nasaftours
-          cat > .env <<EOL
+          ssh -o StrictHostKeyChecking=no ${{ secrets.AZURE_VM_USER }}@${{ secrets.AZURE_VM_IP }} << 'EOT'
+          sudo mkdir -p ~/nasaftours
+          sudo chown -R $USER:$USER ~/nasaftours
+          cat > ~/nasaftours/.env <<EOF
           DATABASE_NAME=${{ secrets.DATABASE_NAME }}
           DATABASE_USERNAME=${{ secrets.DATABASE_USERNAME }}
           DATABASE_PASSWORD=${{ secrets.DATABASE_PASSWORD }}
@@ -139,8 +138,8 @@ jobs:
           AZURE_ACCOUNT_KEY=${{ secrets.AZURE_ACCOUNT_KEY }}
           AZURE_MEDIA_CONTAINER=media
           AZURE_CUSTOM_DOMAIN=${{ secrets.AZURE_CUSTOM_DOMAIN }}
-          EOL
           EOF
+          EOT
 
       - name: Copy compose file to Azure VM
         run: |
@@ -149,42 +148,49 @@ jobs:
 
       - name: Deploy on Azure VM
         run: |
-          ssh -o StrictHostKeyChecking=no ${{ secrets.AZURE_VM_USER }}@${{ secrets.AZURE_VM_IP }} << 'EOF'
+          ssh -o StrictHostKeyChecking=no ${{ secrets.AZURE_VM_USER }}@${{ secrets.AZURE_VM_IP }} << 'EOT'
           cd ~/nasaftours
 
+          # Add user to docker group if not already added
+          if ! groups | grep -q docker; then
+            sudo usermod -aG docker $USER
+            echo "User added to docker group. You may need to logout/login or restart the VM for this to take effect."
+            exit 1
+          fi
+
           # Backup current image tag
-          CURRENT_TAG=$(docker compose -f docker-compose.prod.yml config | grep image | awk '{print $2}' | cut -d':' -f2 || echo "none")
+          CURRENT_TAG=$(sudo docker compose -f docker-compose.prod.yml config | grep image | awk '{print $2}' | cut -d':' -f2 || echo "none")
           echo $CURRENT_TAG > previous_tag.txt
 
           # Stop and remove old containers
-          docker compose -f docker-compose.prod.yml down
+          sudo docker compose -f docker-compose.prod.yml down
 
           # Pull latest images
-          docker compose -f docker-compose.prod.yml pull db
-          docker compose -f docker-compose.prod.yml pull || { docker compose -f docker-compose.prod.yml logs; exit 1; }
+          sudo docker compose -f docker-compose.prod.yml pull db
+          sudo docker compose -f docker-compose.prod.yml pull || { sudo docker compose -f docker-compose.prod.yml logs; exit 1; }
 
           # Start services
-          docker compose -f docker-compose.prod.yml up -d || { docker compose -f docker-compose.prod.yml logs; exit 1; }
+          sudo docker compose -f docker-compose.prod.yml up -d || { sudo docker compose -f docker-compose.prod.yml logs; exit 1; }
 
           # Run Django migrations and collect static files
-          docker compose -f docker-compose.prod.yml exec django-web python manage.py migrate
-          docker compose -f docker-compose.prod.yml exec django-web python manage.py collectstatic --noinput
+          sudo docker compose -f docker-compose.prod.yml exec django-web python manage.py migrate
+          sudo docker compose -f docker-compose.prod.yml exec django-web python manage.py collectstatic --noinput
 
           # Health check
           if ! curl --fail http://localhost:8000/health; then
             echo "Deployment failed, rolling back"
             if [ -f previous_tag.txt ] && [ "$CURRENT_TAG" != "none" ]; then
-              sed -i "s/:${{ github.sha }}/:$CURRENT_TAG/" docker-compose.prod.yml
-              docker compose -f docker-compose.prod.yml up -d
+              sudo sed -i "s/:${{ github.sha }}/:$CURRENT_TAG/" docker-compose.prod.yml
+              sudo docker compose -f docker-compose.prod.yml up -d
             fi
             exit 1
           fi
 
           # Restart web service and cleanup
-          docker compose -f docker-compose.prod.yml restart django-web
-          docker image prune -f
-          EOF
-          
+          sudo docker compose -f docker-compose.prod.yml restart django-web
+          sudo docker image prune -f
+          EOT
+
   # notify:
   #   needs: deploy-to-azure
   #   if: always()
