@@ -43,9 +43,13 @@ COPY --from=builder /usr/local/bin/ /usr/local/bin/
 COPY --from=builder /app /app
 
 # Prepare directories and set ownership
+# Prepare directories
 RUN mkdir -p /app/staticfiles /app/logs \
  && chown -R appuser:appuser /app/staticfiles /app/logs \
- && chmod +x /app/entrypoint.sh
+ && chmod +x /app/entrypoint.sh \
+ && ls -ld /app/staticfiles /app/logs \
+ && touch /app/staticfiles/test.log /app/logs/test.log
+
 
 ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1
