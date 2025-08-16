@@ -10,8 +10,8 @@ done
 echo "Database is up!"
 
 # Ensure directories exist and are writable
-mkdir -p /app/staticfiles /app/logs
-chmod -R 755 /app/staticfiles /app/logs
+# mkdir -p /app/staticfiles /app/logs
+# chmod -R 755 /app/staticfiles /app/logs
 
 # Run Django migrations
 echo "Running migrations..."
