@@ -97,9 +97,7 @@ DATABASES = {
         "NAME": os.getenv("DATABASE_NAME", "nasaftours_db"),
         "USER": os.getenv("DATABASE_USERNAME", "postgres"),
         "PASSWORD": os.getenv("DATABASE_PASSWORD", ""),
-        "HOST": os.getenv(
-            "DATABASE_HOST", "your-postgres-server.postgres.database.azure.com"
-        ),
+        "HOST": os.getenv("DATABASE_HOST", "your-postgres-server.postgres.database.azure.com"),
         "PORT": os.getenv("DATABASE_PORT", "5432"),
         "OPTIONS": {
             "sslmode": "require",  # Enforce SSL for Azure PostgreSQL

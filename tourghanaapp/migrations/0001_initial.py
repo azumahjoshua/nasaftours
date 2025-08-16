@@ -169,9 +169,7 @@ class Migration(migrations.Migration):
                 ("updated_at", models.DateTimeField(auto_now=True)),
                 (
                     "extra_bag_options",
-                    models.ManyToManyField(
-                        blank=True, to="tourghanaapp.extrabagoption"
-                    ),
+                    models.ManyToManyField(blank=True, to="tourghanaapp.extrabagoption"),
                 ),
                 (
                     "interests",
