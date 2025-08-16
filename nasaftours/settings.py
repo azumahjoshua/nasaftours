@@ -57,7 +57,19 @@ MIDDLEWARE = [
 ]
 
 # CORS settings (uncomment if needed)
-CORS_ALLOWED_ORIGINS = os.getenv("CORS_ALLOWED_ORIGINS", "").split(",")
+# CORS_ALLOWED_ORIGINS = os.getenv("CORS_ALLOWED_ORIGINS", "").split(",")
+
+CORS_ALLOWED_ORIGINS = os.getenv("CORS_ALLOWED_ORIGINS", "")
+if CORS_ALLOWED_ORIGINS:
+    CORS_ALLOWED_ORIGINS = [origin.strip() for origin in CORS_ALLOWED_ORIGINS.split(",")]
+else:
+    CORS_ALLOWED_ORIGINS = [
+        "http://localhost:8000",
+        "https://172.167.153.43",
+        "http://127.0.0.1",
+        "http://172.167.153.43",
+    ]
+CORS_ALLOW_CREDENTIALS = True  # Allow cookies to be sent with CORS requests
 
 ROOT_URLCONF = "nasaftours.urls"
 

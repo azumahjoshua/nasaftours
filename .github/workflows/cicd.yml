@@ -132,6 +132,7 @@ jobs:
           AZURE_ACCOUNT_KEY=${{ secrets.AZURE_ACCOUNT_KEY }}
           AZURE_MEDIA_CONTAINER=media
           AZURE_CUSTOM_DOMAIN=${{ secrets.AZURE_CUSTOM_DOMAIN }}
+          CORS_ALLOWED_ORIGINS=${{ secrets.CORS_ALLOWED_ORIGINS }}
           EOF
 
           sudo mkdir -p /app/logs /app/staticfiles
