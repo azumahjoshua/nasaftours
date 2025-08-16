@@ -167,10 +167,17 @@ USE_TZ = True
 
 # Static files
 STATIC_URL = "/static/"
-STATIC_ROOT = os.path.join(BASE_DIR, "staticfiles")
+STATIC_ROOT = BASE_DIR / "staticfiles"
+STATICFILES_DIRS = [
+    BASE_DIR / "static",
+    BASE_DIR / "tourghanaapp" / "static",
+]
+# STATIC_ROOT = os.path.join(BASE_DIR, "staticfiles")
 STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
-COMPRESS_ROOT = BASE_DIR / "static"
+COMPRESS_ROOT = STATIC_ROOT
 COMPRESS_ENABLED = True
+COMPRESS_OFFLINE = True
+COMPRESS_URL = STATIC_URL
 
 STATICFILES_FINDERS = [
     "django.contrib.staticfiles.finders.FileSystemFinder",
