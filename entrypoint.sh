@@ -12,13 +12,13 @@ echo "Database is up!"
 echo "Running migrations..."
 python manage.py migrate --noinput
 
-# Collect static files
-echo "Collecting static files..."
-python manage.py collectstatic --noinput
-
-# Run offline compression
+# Run offline compression first
 echo "Running offline compression..."
 python manage.py compress --force
+
+# Collect static files after compression
+echo "Collecting static files..."
+python manage.py collectstatic --noinput
 
 # Start Gunicorn
 echo "Starting Gunicorn..."
@@ -29,4 +29,5 @@ exec gunicorn nasaftours.wsgi:application \
     --log-level info \
     --access-logfile '-' \
     --error-logfile '-'
+
 
