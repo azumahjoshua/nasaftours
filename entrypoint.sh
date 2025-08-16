@@ -8,16 +8,19 @@ until nc -z "$DATABASE_HOST" "$DATABASE_PORT"; do
 done
 echo "Database is up!"
 
-# Run migrations & collectstatic as root to avoid permission issues
+# Run migrations
 echo "Running migrations..."
 python manage.py migrate --noinput
 
+# Collect static files
 echo "Collecting static files..."
 python manage.py collectstatic --noinput
 
-# Start Gunicorn as appuser
-# echo "Starting Gunicorn..."
-# exec gunicorn nasaftours.wsgi:application --bind 0.0.0.0:8000
+# Run offline compression
+echo "Running offline compression..."
+python manage.py compress --force
+
+# Start Gunicorn
 echo "Starting Gunicorn..."
 exec gunicorn nasaftours.wsgi:application \
     --bind 0.0.0.0:8000 \
@@ -27,41 +30,3 @@ exec gunicorn nasaftours.wsgi:application \
     --access-logfile '-' \
     --error-logfile '-'
 
-
-
-
-
-#!/bin/sh
-
-# # Wait for DB
-# nc -z $DATABASE_HOST $DATABASE_PORT
-# while [ $? -ne 0 ]; do
-#   echo "Waiting for database at $DATABASE_HOST:$DATABASE_PORT..."
-#   sleep 1
-#   nc -z $DATABASE_HOST $DATABASE_PORT
-# done
-
-# set -e
-
-# # Ensure logs directory exists and is writable
-# # mkdir -p /app/logs
-# # chown -R appuser:appuser /app/logs
-
-
-# # Run migrations and start app
-# python manage.py migrate
-# python manage.py collectstatic --noinput
-# exec gunicorn nasaftours.wsgi:application --bind 0.0.0.0:8000
-
-# #!/bin/bash
-# echo "Waiting for postgres..."
-
-# while ! nc -z db 5432; do
-#   sleep 1
-# done
-
-# echo "PostgreSQL started"
-
-# python manage.py migrate
-# python manage.py collectstatic --noinput
-# exec python manage.py runserver 0.0.0.0:8000
