@@ -40,26 +40,24 @@ WORKDIR /app
 # Copy Python and Node build artifacts from builder stage
 COPY --from=builder /usr/local/lib/python3.13/site-packages/ /usr/local/lib/python3.13/site-packages/
 COPY --from=builder /usr/local/bin/ /usr/local/bin/
-# Copy app code but remove staticfiles to avoid root-owned files
 COPY --from=builder /app /app
-RUN rm -rf /app/staticfiles
 
-# Prepare directories and set ownership
+# Remove old staticfiles if any
+RUN rm -rf /app/staticfiles /app/logs
+
+# Create directories owned by appuser
 RUN mkdir -p /app/staticfiles /app/logs \
  && chown -R appuser:appuser /app \
  && chmod -R 755 /app/staticfiles /app/logs \
  && chmod +x /app/entrypoint.sh
 
-# Set environment variables
-ENV PYTHONDONTWRITEBYTECODE=1
-ENV PYTHONUNBUFFERED=1
-
-# Copy entrypoint script
+# Copy entrypoint
 COPY entrypoint.sh /app/
 ENTRYPOINT ["/app/entrypoint.sh"]
 
-# Run as non-root user
+# Switch to non-root user
 USER appuser
 
 EXPOSE 8000
+
 
