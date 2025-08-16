@@ -64,7 +64,9 @@ def contact(request):
 def blog_list(request):
     featured = BlogPost.objects.filter(is_featured=True).order_by("-created_at").first()
     posts = BlogPost.objects.filter(is_featured=False).order_by("-created_at")
-    return render(request, "blog/blog_list.html", {"featured_post": featured, "posts": posts})
+    return render(
+        request, "blog/blog_list.html", {"featured_post": featured, "posts": posts}
+    )
 
 
 def blog_detail(request, slug):
@@ -93,7 +95,11 @@ def booking(request):
         "tours/book_tour.html",
         {
             "form": form,
-            "interests_by_category": (form.interests_by_category if hasattr(form, "interests_by_category") else {}),
+            "interests_by_category": (
+                form.interests_by_category
+                if hasattr(form, "interests_by_category")
+                else {}
+            ),
         },
     )
 
@@ -101,7 +107,9 @@ def booking(request):
 def send_confirmation_email(booking, request):
     try:
         subject = f"Tour Booking Confirmation - {booking.tour_date}"
-        confirmation_url = request.build_absolute_uri(reverse("booking_confirmation", args=[booking.id]))
+        confirmation_url = request.build_absolute_uri(
+            reverse("booking_confirmation", args=[booking.id])
+        )
 
         context = {
             "booking": booking,
@@ -142,7 +150,8 @@ def destination_list(request):
     context = {
         "destinations": destinations,
         "meta_title": "Explore Ghana's Top Destinations",
-        "meta_description": "Discover the most beautiful and " "historic destinations in Ghana with Nasaf Tours",
+        "meta_description": "Discover the most beautiful and "
+        "historic destinations in Ghana with Nasaf Tours",
     }
     return render(request, "destinations/list.html", context)
 
@@ -155,7 +164,9 @@ def destination_detail(request, slug):
 
     # Get related destinations (excluding current one)
     related_destinations = (
-        Destination.objects.filter(is_active=True).exclude(id=destination.id).order_by("?")[:3]
+        Destination.objects.filter(is_active=True)
+        .exclude(id=destination.id)
+        .order_by("?")[:3]
     )  # Random 3 destinations
 
     context = {
