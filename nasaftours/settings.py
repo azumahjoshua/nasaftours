@@ -93,21 +93,48 @@ TEMPLATES = [
 WSGI_APPLICATION = "nasaftours.wsgi.application"
 
 # Database (Azure PostgreSQL)
-DATABASES = {
-    "default": {
-        "ENGINE": "django.db.backends.postgresql",
-        "NAME": os.getenv("DATABASE_NAME", "nasaftours_db"),
-        "USER": os.getenv("DATABASE_USERNAME", "postgres"),
-        "PASSWORD": os.getenv("DATABASE_PASSWORD", ""),
-        "HOST": os.getenv(
-            "DATABASE_HOST", "your-postgres-server.postgres.database.azure.com"
-        ),
-        "PORT": os.getenv("DATABASE_PORT", "5432"),
-        "OPTIONS": {
-            "sslmode": "require",  # Enforce SSL for Azure PostgreSQL
-        },
+ENVIRONMENT = os.getenv("ENV", "production")
+
+if ENVIRONMENT == "production":
+    DATABASES = {
+        "default": {
+            "ENGINE": "django.db.backends.postgresql",
+            "NAME": os.getenv("DATABASE_NAME"),
+            "USER": os.getenv("DATABASE_USERNAME"),
+            "PASSWORD": os.getenv("DATABASE_PASSWORD"),
+            "HOST": os.getenv("DATABASE_HOST"),
+            "PORT": os.getenv("DATABASE_PORT", "5432"),
+            "OPTIONS": {"sslmode": "require"},  # enforce SSL
+        }
     }
-}
+else:  # development/local
+    DATABASES = {
+        "default": {
+            "ENGINE": "django.db.backends.postgresql",
+            "NAME": os.getenv("DATABASE_NAME", "nasaftours_db"),
+            "USER": os.getenv("DATABASE_USERNAME", "postgres"),
+            "PASSWORD": os.getenv("DATABASE_PASSWORD", ""),
+            "HOST": os.getenv("DATABASE_HOST", "db"),
+            "PORT": os.getenv("DATABASE_PORT", "5432"),
+            "OPTIONS": {"sslmode": "disable"},  # disable SSL
+        }
+    }
+
+# DATABASES = {
+#     "default": {
+#         "ENGINE": "django.db.backends.postgresql",
+#         "NAME": os.getenv("DATABASE_NAME", "nasaftours_db"),
+#         "USER": os.getenv("DATABASE_USERNAME", "postgres"),
+#         "PASSWORD": os.getenv("DATABASE_PASSWORD", ""),
+#         "HOST": os.getenv(
+#             "DATABASE_HOST", "your-postgres-server.postgres.database.azure.com"
+#         ),
+#         "PORT": os.getenv("DATABASE_PORT", "5432"),
+#         "OPTIONS": {
+#             "sslmode": "require" if ENVIRONMENT == "production" else "disable",
+#         },
+#     }
+# }
 
 # Password validation
 AUTH_PASSWORD_VALIDATORS = [

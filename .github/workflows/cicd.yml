@@ -116,6 +116,7 @@ jobs:
           sudo chown -R $USER:$USER $APP_DIR
 
           tee $APP_DIR/.env > /dev/null <<EOF
+          ENV=development
           DATABASE_NAME=${{ secrets.DATABASE_NAME }}
           DATABASE_USERNAME=${{ secrets.DATABASE_USERNAME }}
           DATABASE_PASSWORD=${{ secrets.DATABASE_PASSWORD }}
