@@ -16,8 +16,48 @@ ENVIRONMENT = os.getenv("ENV", "production")  # Default to production for Azure
 # Security settings
 SECRET_KEY = os.environ.get("DJANGO_SECRET_KEY")
 DEBUG = os.getenv("DEBUG", "False") == "True"  # Ensure False in production
-ALLOWED_HOSTS = os.getenv("DJANGO_ALLOWED_HOSTS", "localhost,127.0.0.1").split(",")
+
+# Hosts & Trusted Origins
+ALLOWED_HOSTS = os.getenv(
+    "DJANGO_ALLOWED_HOSTS", "localhost,127.0.0.1,nasafotourghana.ddns.net"
+).split(",")
 ALLOWED_HOSTS = [host.strip() for host in ALLOWED_HOSTS]
+
+# CSRF settings
+CSRF_TRUSTED_ORIGINS = ["https://nasafotourghana.ddns.net"]
+
+SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
+
+if ENVIRONMENT == "production":
+    SECURE_SSL_REDIRECT = True
+    SECURE_HSTS_SECONDS = 31536000  # 1 year
+    SECURE_HSTS_INCLUDE_SUBDOMAINS = True
+    SECURE_HSTS_PRELOAD = True
+    SECURE_CONTENT_TYPE_NOSNIFF = True
+    X_FRAME_OPTIONS = "DENY"
+    CSRF_COOKIE_SECURE = True
+    SESSION_COOKIE_SECURE = True
+else:
+    SECURE_SSL_REDIRECT = False
+    SECURE_HSTS_SECONDS = 0
+    SECURE_HSTS_INCLUDE_SUBDOMAINS = False
+    SECURE_HSTS_PRELOAD = False
+    CSRF_COOKIE_SECURE = False
+    SESSION_COOKIE_SECURE = False
+
+# ALLOWED_HOSTS = os.getenv("DJANGO_ALLOWED_HOSTS", "localhost,127.0.0.1").split(",")
+# ALLOWED_HOSTS = [host.strip() for host in ALLOWED_HOSTS]
+
+# Production HTTPS settings
+# SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https") 
+# SECURE_SSL_REDIRECT = True 
+# SECURE_HSTS_SECONDS = 31536000  # 1 year HSTS
+# SECURE_HSTS_INCLUDE_SUBDOMAINS = True
+# SECURE_HSTS_PRELOAD = True
+# SECURE_CONTENT_TYPE_NOSNIFF = True
+# X_FRAME_OPTIONS = "DENY"
+# CSRF_COOKIE_SECURE = True
+# SESSION_COOKIE_SECURE = True
 
 # Production HTTPS settings
 # SECURE_SSL_REDIRECT = not DEBUG  # Redirect HTTP to HTTPS
@@ -28,12 +68,12 @@ ALLOWED_HOSTS = [host.strip() for host in ALLOWED_HOSTS]
 # X_FRAME_OPTIONS = "DENY"
 # CSRF_COOKIE_SECURE = not DEBUG
 # SESSION_COOKIE_SECURE = not DEBUG
-SECURE_SSL_REDIRECT = False
-CSRF_COOKIE_SECURE = False
-SESSION_COOKIE_SECURE = False
-SECURE_HSTS_SECONDS = 0
-SECURE_HSTS_INCLUDE_SUBDOMAINS = False
-SECURE_HSTS_PRELOAD = False
+# SECURE_SSL_REDIRECT = False
+# CSRF_COOKIE_SECURE = False
+# SESSION_COOKIE_SECURE = False
+# SECURE_HSTS_SECONDS = 0
+# SECURE_HSTS_INCLUDE_SUBDOMAINS = False
+# SECURE_HSTS_PRELOAD = False
 
 # Application definition
 INSTALLED_APPS = [
@@ -77,7 +117,9 @@ else:
         "https://172.167.153.43",
         "http://127.0.0.1",
         "http://172.167.153.43",
+        "https://nasafotourghana.ddns.net",
     ]
+
 CORS_ALLOW_CREDENTIALS = True  # Allow cookies to be sent with CORS requests
 
 ROOT_URLCONF = "nasaftours.urls"
