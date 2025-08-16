@@ -42,18 +42,17 @@ COPY --from=builder /usr/local/lib/python3.13/site-packages/ /usr/local/lib/pyth
 COPY --from=builder /usr/local/bin/ /usr/local/bin/
 COPY --from=builder /app /app
 
-# Prepare directories and set ownership BEFORE switching user
+# Ensure app directories are owned by appuser
 RUN mkdir -p /app/staticfiles /app/logs \
- && chown -R appuser:appuser /app/staticfiles /app/logs \
+ && chown -R appuser:appuser /app \
  && chmod -R 755 /app/staticfiles /app/logs \
  && chmod +x /app/entrypoint.sh
 
-USER appuser
-
-
+# Set environment variables
 ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1
 
+# Copy entrypoint and switch user
 COPY entrypoint.sh /app/
 ENTRYPOINT ["/app/entrypoint.sh"]
 
