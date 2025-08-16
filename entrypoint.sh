@@ -2,23 +2,29 @@
 set -e
 
 # Wait for DB to be ready
-until nc -z $DATABASE_HOST $DATABASE_PORT; do
-  echo "Waiting for database at $DATABASE_HOST:$DATABASE_PORT..."
-  sleep 1
+echo "Checking database connection at $DATABASE_HOST:$DATABASE_PORT..."
+until nc -z "$DATABASE_HOST" "$DATABASE_PORT"; do
+  echo "Waiting for database..."
+  sleep 2
 done
+echo "Database is up!"
 
-# Ensure staticfiles directory exists and is writable
-# mkdir -p /app/staticfiles /app/logs
-# chown -R $(whoami):$(whoami) /app/staticfiles /app/logs
+# Ensure directories exist and are writable
+mkdir -p /app/staticfiles /app/logs
+chmod -R 755 /app/staticfiles /app/logs
 
-# mkdir -p /app/staticfiles /app/logs
+# Run Django migrations
+echo "Running migrations..."
+python manage.py migrate --noinput
 
-# Run migrations and collect static files
-python manage.py migrate
+# Collect static files
+echo "Collecting static files..."
 python manage.py collectstatic --noinput
 
 # Start Gunicorn
+echo "Starting Gunicorn..."
 exec gunicorn nasaftours.wsgi:application --bind 0.0.0.0:8000
+
 
 
 #!/bin/sh
