@@ -7,11 +7,11 @@ until nc -z $DATABASE_HOST $DATABASE_PORT; do
   sleep 1
 done
 
-
-
 # Ensure staticfiles directory exists and is writable
 # mkdir -p /app/staticfiles /app/logs
 # chown -R $(whoami):$(whoami) /app/staticfiles /app/logs
+
+mkdir -p /app/staticfiles /app/logs
 
 # Run migrations and collect static files
 python manage.py migrate

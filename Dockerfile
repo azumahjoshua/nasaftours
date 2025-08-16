@@ -42,13 +42,13 @@ COPY --from=builder /usr/local/lib/python3.13/site-packages/ /usr/local/lib/pyth
 COPY --from=builder /usr/local/bin/ /usr/local/bin/
 COPY --from=builder /app /app
 
-# Prepare directories and set ownership
-# Prepare directories
+# Prepare directories and set ownership BEFORE switching user
 RUN mkdir -p /app/staticfiles /app/logs \
  && chown -R appuser:appuser /app/staticfiles /app/logs \
- && chmod +x /app/entrypoint.sh \
- && ls -ld /app/staticfiles /app/logs \
- && touch /app/staticfiles/test.log /app/logs/test.log
+ && chmod -R 755 /app/staticfiles /app/logs \
+ && chmod +x /app/entrypoint.sh
+
+USER appuser
 
 
 ENV PYTHONDONTWRITEBYTECODE=1
