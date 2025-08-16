@@ -1,6 +1,7 @@
 #!/bin/sh
 set -e
 
+# Wait for DB to be ready
 echo "Checking database connection at $DATABASE_HOST:$DATABASE_PORT..."
 until nc -z "$DATABASE_HOST" "$DATABASE_PORT"; do
   echo "Waiting for database..."
@@ -8,8 +9,9 @@ until nc -z "$DATABASE_HOST" "$DATABASE_PORT"; do
 done
 echo "Database is up!"
 
-# Create directories inside container (owned by appuser)
-mkdir -p /app/staticfiles /app/logs
+# Ensure directories exist and are writable
+# mkdir -p /app/staticfiles /app/logs
+# chmod -R 755 /app/staticfiles /app/logs
 
 # Run Django migrations
 echo "Running migrations..."
