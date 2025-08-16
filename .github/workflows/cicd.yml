@@ -95,7 +95,7 @@ jobs:
       - name: Prepare production compose file
         run: |
           mkdir -p deployment
-           sed -e "s|build: .|image: ${DOCKER_HUB_REPO}:${IMAGE_TAG}|" \
+          sed -e "s|build: .|image: ${DOCKER_HUB_REPO}:${IMAGE_TAG}|" \
                 -e "s|container_name: nasaftours_web||" \
                 -e "s|\${IMAGE_TAG}|${IMAGE_TAG}|g" compose.yml > deployment/docker-compose.prod.yml
 
@@ -112,8 +112,8 @@ jobs:
           ssh -o StrictHostKeyChecking=no ${{ secrets.AZURE_VM_USER }}@${{ secrets.AZURE_VM_IP }} << 'EOT'
           set -e
           APP_DIR=~/nasaftours
-          sudo mkdir -p $APP_DIR
-          sudo chown -R $USER:$USER $APP_DIR
+          sudo mkdir -p $APP_DIR /app/logs /app/staticfiles
+          sudo chown -R $USER:$USER $APP_DIR /app/logs /app/staticfiles
 
           tee $APP_DIR/.env > /dev/null <<EOF
           ENV=development
@@ -136,8 +136,6 @@ jobs:
           CORS_ALLOWED_ORIGINS=${{ secrets.CORS_ALLOWED_ORIGINS }}
           EOF
 
-          sudo mkdir -p /app/logs /app/staticfiles
-          sudo chown -R 1000:1000 /app/logs /app/staticfiles
           EOT
 
       - name: Copy compose file & deploy
@@ -156,6 +154,13 @@ jobs:
           sudo docker compose -f docker-compose.prod.yml pull
           sudo docker compose -f docker-compose.prod.yml up -d
 
+          # Run migrations & collectstatic as root
+          echo "Running migrations..."
+          sudo docker compose -f docker-compose.prod.yml exec -u root django-web python manage.py migrate
+          echo "Collecting static files..."
+          sudo docker compose -f docker-compose.prod.yml exec -u root django-web python manage.py collectstatic --noinput
+
+
           for i in {1..10}; do
               if curl --fail http://localhost:8000/; then
                   echo "Django is healthy"
@@ -164,18 +169,6 @@ jobs:
               echo "Waiting for Django to be ready... ($i/10)"
               sleep 5
           done
-
-          sudo docker compose -f docker-compose.prod.yml exec django-web python manage.py migrate
-          sudo docker compose -f docker-compose.prod.yml exec django-web python manage.py collectstatic --noinput
-
-          if ! curl --fail http://localhost:8000/health; then
-              echo "Deployment failed, rolling back..."
-              if [ -f previous_tag.txt ] && [ "$CURRENT_TAG" != "none" ]; then
-                  sudo sed -i "s|:${IMAGE_TAG}|:${CURRENT_TAG}|" docker-compose.prod.yml
-                  sudo docker compose -f docker-compose.prod.yml up -d
-              fi
-              exit 1
-          fi
 
           sudo docker compose -f docker-compose.prod.yml restart django-web
           sudo docker image prune -f

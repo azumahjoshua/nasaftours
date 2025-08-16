@@ -6,7 +6,7 @@ WORKDIR /app
 ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1
 
-# Install OS dependencies for Python + Node
+# Install OS dependencies + Node
 RUN apt-get update && apt-get install -y curl build-essential \
  && curl -fsSL https://deb.nodesource.com/setup_18.x | bash - \
  && apt-get install -y nodejs \
@@ -32,32 +32,34 @@ FROM python:3.13-slim
 
 # Install netcat and create app user
 RUN apt-get update && apt-get install -y netcat-openbsd \
- && useradd -m -r appuser \
+ && useradd -m -r -u 1000 appuser \
  && apt-get clean && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
 
-# Copy Python and Node build artifacts from builder stage
+# Copy Python and Node artifacts
 COPY --from=builder /usr/local/lib/python3.13/site-packages/ /usr/local/lib/python3.13/site-packages/
 COPY --from=builder /usr/local/bin/ /usr/local/bin/
 COPY --from=builder /app /app
 
-# Remove old staticfiles if any
-RUN rm -rf /app/staticfiles /app/logs
+# Remove old staticfiles/logs, create fresh directories
+RUN rm -rf /app/staticfiles /app/logs \
+ && mkdir -p /app/staticfiles /app/logs \
+ && chown -R appuser:appuser /app
 
-# Create directories owned by appuser
-RUN mkdir -p /app/staticfiles /app/logs \
- && chown -R appuser:appuser /app \
- && chmod -R 755 /app/staticfiles /app/logs \
- && chmod +x /app/entrypoint.sh
-
-# Copy entrypoint
+# Copy entrypoint and make executable
 COPY entrypoint.sh /app/
-ENTRYPOINT ["/app/entrypoint.sh"]
+RUN chmod +x /app/entrypoint.sh
 
-# Switch to non-root user
+# Environment
+ENV PYTHONDONTWRITEBYTECODE=1
+ENV PYTHONUNBUFFERED=1
+
+# Switch to appuser
 USER appuser
 
+ENTRYPOINT ["/app/entrypoint.sh"]
 EXPOSE 8000
+
 
 

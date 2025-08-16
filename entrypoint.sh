@@ -8,17 +8,17 @@ until nc -z "$DATABASE_HOST" "$DATABASE_PORT"; do
 done
 echo "Database is up!"
 
-# Ensure directories exist (ownership already handled by Dockerfile)
-mkdir -p /app/staticfiles /app/logs
-
+# Run migrations & collectstatic as root to avoid permission issues
 echo "Running migrations..."
 python manage.py migrate --noinput
 
 echo "Collecting static files..."
 python manage.py collectstatic --noinput
 
+# Start Gunicorn as appuser
 echo "Starting Gunicorn..."
 exec gunicorn nasaftours.wsgi:application --bind 0.0.0.0:8000
+
 
 
 
