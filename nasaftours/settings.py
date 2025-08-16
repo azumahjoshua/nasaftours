@@ -16,7 +16,8 @@ ENVIRONMENT = os.getenv("ENV", "production")  # Default to production for Azure
 # Security settings
 SECRET_KEY = os.environ.get("DJANGO_SECRET_KEY")
 DEBUG = os.getenv("DEBUG", "False") == "True"  # Ensure False in production
-ALLOWED_HOSTS = os.getenv("DJANGO_ALLOWED_HOSTS", "localhost").split(",")
+ALLOWED_HOSTS = os.getenv("DJANGO_ALLOWED_HOSTS", "localhost,127.0.0.1").split(",")
+ALLOWED_HOSTS = [host.strip() for host in ALLOWED_HOSTS]
 
 # Production HTTPS settings
 SECURE_SSL_REDIRECT = not DEBUG  # Redirect HTTP to HTTPS
