@@ -16,8 +16,16 @@ echo "Collecting static files..."
 python manage.py collectstatic --noinput
 
 # Start Gunicorn as appuser
+# echo "Starting Gunicorn..."
+# exec gunicorn nasaftours.wsgi:application --bind 0.0.0.0:8000
 echo "Starting Gunicorn..."
-exec gunicorn nasaftours.wsgi:application --bind 0.0.0.0:8000
+exec gunicorn nasaftours.wsgi:application \
+    --bind 0.0.0.0:8000 \
+    --workers 3 \
+    --timeout 120 \
+    --log-level info \
+    --access-logfile '-' \
+    --error-logfile '-'
 
 
 
